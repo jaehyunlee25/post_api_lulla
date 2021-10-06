@@ -20,6 +20,16 @@ const QTS = {
   delAM: 'delAllowedMember',
   delAC: 'delAllowedClass',
   getPost: 'getPostById',
+
+  getPostCongrat: 'getPostCongratulation',
+  getAMcount: 'getAllowedMemberCount',
+  getACcount: 'getAllowedClassCount',
+  getSVcount: 'getSurveyCount',
+  getPDSCOne: 'getPostDetailSurveyCaseOne',
+  getPDSCTwo: 'getPostDetailSurveyCaseTwo',
+  getPDSCThree: 'getPostDetailSurveyCaseThree',
+  getAllComments: 'getAllComments',
+  getAllLikes: 'getAllLikes',
 };
 
 // req.body를 만들지 않도록 한다.
@@ -57,9 +67,122 @@ async function get(req, res) {
   const qUserId = await getUserIdFromToken(req.headers.authorization);
   if (qUserId.type === 'error') return qUserId.onError(res, '3.1');
   const userId = qUserId.message;
+
+  const {
+    member_id: memberId,
+    class: classes,
+    page,
+    id: postId,
+    temp,
+    category,
+    search,
+  } = req.query;
+
+  // #3.2. member 검색
+  const qMember = await POST(
+    'school',
+    '/checkMember',
+    { 'Content-Type': 'application/json' },
+    { userId, memberId },
+  );
+  if (qMember.type === 'error')
+    return qMember.onError(res, '3.2', 'fatal error while searching member');
+  const { schoolId, grade, classId /* , kidId */ } = qMember.message;
+
+  // #3.3. 프로필이 없는 경우 축하메시지
+  if (!schoolId) {
+    const qCon = await QTS.getPostCongrat.fQuery({});
+    if (qCon.type === 'error')
+      return qCon.onError(res, '3.3', 'searching congrat post');
+
+    const postCongrat = qCon.message.rows[0];
+    const congrat = {
+      id: postCongrat.id,
+      title: postCongrat.title,
+      contents: postCongrat.contents,
+      is_modified: false,
+      published_time: postCongrat.published_time,
+      important: postCongrat.important,
+      author_id: postCongrat.author_id,
+      create_at: postCongrat.create_at,
+      like_count: 0,
+      comment_count: 0,
+      is_like: false,
+      is_bookmark: false,
+      author_nickname: '랄라',
+      allowed_member: [],
+      allowed_class: [],
+      class_name: null,
+      school_name: null,
+      author_type: '관리자',
+      author_grade: 0,
+      author_image:
+        'https://s3lulla.s3.ap-northeast-2.amazonaws.com/lulla_1614318630221__8940__.png',
+    };
+    return RESPOND(res, {
+      data: { post: congrat, comment: [], like: [] },
+      datas: [congrat],
+      total_count: 1,
+      total_page: 1,
+      message: '성공적으로 데이터를 반환하였습니다.',
+      resultCode: 200,
+    });
+  }
+
+  if (postId) {
+    // #3.4. 변수 확보
+    const qAM = await QTS.getAMcount.fQuery({ postId });
+    if (qAM.type === 'error')
+      return qAM.onError(res, '3.4.1', 'counting allowed member');
+    const qAC = await QTS.getACcount.fQuery({ postId });
+    if (qAC.type === 'error')
+      return qAC.onError(res, '3.4.2', 'counting allowed class');
+    const qSVC = await QTS.getSVcount.fQuery({ postId });
+    if (qSVC.type === 'error')
+      return qSVC.onError(res, '3.4.3', 'counting survey');
+    const cntAM = qAM.message.rows[0].count;
+    const cntAC = qAM.message.rows[0].count;
+    const cntSV = qSVC.message.rows[0].count;
+
+    const endDate = await getFormatDate(new Date());
+    // #3.5. 공지사항 구하기
+    let qts;
+    if (cntSV > 0) {
+      if (cntAM === 0 && cntAC === 0) qts = QTS.getPDSCTwo;
+      else qts = QTS.getPDSCThree;
+    } else {
+      qts = QTS.getPDSCOne;
+    }
+    const qPostDetail = await qts.fQuery({
+      postId,
+      schoolId,
+      memberId,
+      endDate,
+    });
+    if (qPostDetail.type === 'error')
+      return qPostDetail.onError(res, '3.5.1', 'searching post detail');
+    const postDetail = qPostDetail.message.rows[0];
+    // #3.6. 댓글 구하기
+    const qAllComment = await QTS.getAllComment.fQuery({ postId });
+    if (qAllComment.type === 'error')
+      return qAllComment.onError(res, '3.6.1', 'searching comments');
+    const comment = qAllComment.message.rows;
+    // #3.7. 좋아요 구하기
+    const qAllLikes = await QTS.getAllLikes.fQuery({ postId });
+    if (qAllLikes.type === 'error')
+      return qAllLikes.onError(res, '3.6.1', 'searching likes');
+    const like = qAllLikes.message.rows;
+
+    return RESPOND(res, {
+      data: { post: postDetail, comment, like },
+      message: '해당하는 데이터를 성공적으로 반환하였습니다.',
+      resultCode: 200,
+    });
+  }
+
   return RESPOND(res, {
     userId,
-    message: 'get 프로필 이미지 변경 성공',
+    message: '공지사항 출력 성공',
     resultCode: 200,
   });
 }
@@ -288,4 +411,12 @@ async function updatePost(postId, param) {
     };
 
   return true;
+}
+function getFormatDate(date) {
+  const year = date.getFullYear();
+  let month = 1 + date.getMonth();
+  month = month >= 10 ? month : '0'.add(month);
+  let day = date.getDate();
+  day = day >= 10 ? day : '0'.add(day);
+  return year.add('-').add(month).add('-').add(day);
 }
