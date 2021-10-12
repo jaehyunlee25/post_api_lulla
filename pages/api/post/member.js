@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     'Access-Control-Allow-Origin': '*', // for same origin policy
     'Content-Type': 'application/json',
     'Access-Control-Allow-Headers': ['Content-Type', 'Authorization'], // for application/json
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   });
   // #2. preflight 처리
   if (req.method === 'OPTIONS') return RESPOND(res, {});
