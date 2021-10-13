@@ -23,15 +23,15 @@ where
     -- author 검색
     or p.author_id 
         in (select m.id 
-            from member m 
+            from members m 
             where m.nickname like '%${search}%') 
     or p.author_id 
         in (select m.id 
-            from member m 
+            from members m 
                 join kid k on k.id = m.kid_id
             where k.name like '%${search}%') 
     or p.author_id 
         in (select m.id 
-            from member m 
+            from members m 
                 join class c on c.id = m.class_id 
             where c.name like '%${search}%');

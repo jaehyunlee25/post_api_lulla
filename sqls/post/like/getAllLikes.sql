@@ -9,7 +9,7 @@ select
     k.id kid_id,
     k.name kid_name, 
     c.id class_id, 
-    c.name class_name , 
+    c.name class_name,
     CASE 
         WHEN sr.grade = 1 THEN concat(s.name) 
         WHEN sr.grade < 3 THEN concat(u.name,' ',sr.name) 
@@ -24,4 +24,4 @@ from likes l
     left join schools s on m.school_id = s.id
     left join kid k on k.id = m.kid_id
     left join users u on u.id = m.user_id
-where l.post_id = '${postId}'
+where l.post_id = '${postId}';

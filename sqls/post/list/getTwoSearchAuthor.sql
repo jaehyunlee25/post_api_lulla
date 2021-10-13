@@ -42,7 +42,7 @@ select
     (1=CAST(
         (select count(*) 
         from bookmark b 
-            join member m on b.member_id = m.id 
+            join members m on b.member_id = m.id 
         where b.post_id = p.id 
             and b.member_id ='${memberId}'
         ) AS INTEGER)
@@ -55,12 +55,12 @@ select
             WHEN sr.grade < 5 THEN concat(c.name,' ',u.name,' ','선생님') 
             WHEN sr.grade = 5 THEN concat(c.name,' ',k.name,'(',m.nickname,')') 
         END
-    from member m 
+    from members m 
         left join kid k on k.id = m.kid_id 
         join users u on u.id = m.user_id 
         join schools s on m.school_id = s.id 
         left join class c on c.id = m.class_id 
-        join school_role sr on m.school_role_id =sr.id 
+        join school_roles sr on m.school_role_id =sr.id 
     where m.id = p.author_id
     ) author_nickname,
     -- allowed_member
@@ -80,11 +80,11 @@ select
                     c.name class_name, 
                     c.id class_id 
                 from allowed_member am
-                    join member m on am.member_id = m.id 
+                    join members m on am.member_id = m.id 
                     left join file f on m.image_id = f.id
                     join class c on m.class_id = c.id 
                     left join kid k on k.id = m.kid_id
-                    join school_role sr on sr.id = m.school_role_id 
+                    join school_roles sr on sr.id = m.school_role_id 
                     join schools s on s.id = m.school_id
                     join users u on u.id = m.user_id
                 where am.post_id = p.id
@@ -114,12 +114,12 @@ select
                                     c.name class_name, 
                                     c.id class_id, 
                                     k.name kid_name
-                                from member m 
+                                from members m 
                                     join users u on u.id = m.user_id 
                                     left join file f on m.image_id = f.id 
                                     left join class c on c.id = m.class_id 
                                     left join kid k on k.id = m.kid_id 
-                                    join school_role sr on sr.id = m.school_role_id 
+                                    join school_roles sr on sr.id = m.school_role_id 
                                     join schools s on s.id = m.school_id
                                 where 
                                     m.class_id = ac.class_id 
@@ -135,26 +135,26 @@ select
     ) allowed_class),
     -- class_name
     (select c.name 
-    from member m 
+    from members m 
         join class c on m.class_id =c.id 
     where m.id = p.author_id
     ) class_name,
     -- school_name
     (select s.name 
-    from member m 
+    from members m 
         join schools s on m.school_id =s.id 
     where m.id = p.author_id
     ) school_name,
     -- author_type
     (select r.name 
-    from member m 
-        join school_role r on m.school_role_id =r.id 
+    from members m 
+        join school_roles r on m.school_role_id =r.id 
     where m.id = p.author_id
     ) author_type,
     -- member_grade
     (select r.grade 
-    from member m 
-        join school_role r on m.school_role_id =r.id 
+    from members m 
+        join school_roles r on m.school_role_id =r.id 
     where m.id = p.author_id
     ) author_grade,
     -- images
@@ -205,13 +205,13 @@ select
     -- author_image
     (select f.address 
     from file f 
-        left join member on member.id = p.author_id 
+        left join members on member.id = p.author_id 
     where f.id = member.image_id) author_image,
     -- complete_survey
     (1=CAST(
         (select count(*) 
         from survey_member sm 
-            join member m on sm.member_id = m.id 
+            join members m on sm.member_id = m.id 
         where 
             sm.survey_id = s.id 
             and sm.member_id ='${memberId}'
@@ -244,16 +244,16 @@ where
     -- author 검색
     and p.author_id 
         in (select m.id 
-            from member m 
+            from members m 
             where m.nickname like '%${search}%') 
     or p.author_id 
         in (select m.id 
-            from member m 
+            from members m 
                 join kid k on k.id = m.kid_id
             where k.name like '%${search}%') 
     or p.author_id 
         in (select m.id 
-            from member m 
+            from members m 
                 join class c on c.id = m.class_id 
             where c.name like '%${search}%')
 order by

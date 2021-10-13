@@ -9,7 +9,7 @@ where
                     (select p.id 
                     from post p 
                         left join allowed_class ac on p.id = ac.post_id 
-                        join member m on p.author_id = m.id 
+                        join members m on p.author_id = m.id 
                     where 
                         m.class_id in (${classes}) 
                         or ac.class_id in (${classes}) 

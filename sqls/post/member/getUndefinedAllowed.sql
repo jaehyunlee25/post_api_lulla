@@ -21,7 +21,7 @@ select
                                             c.name class_name, 
                                             k.name kid_name
                                         from 
-                                            member m
+                                            members m
                                             join file f on m.image_id = f.id
                                             join kid k on k.id = m.kid_id
                                         where 

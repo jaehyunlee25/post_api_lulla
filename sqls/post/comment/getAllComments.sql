@@ -11,7 +11,7 @@ select
         WHEN sr.grade < 5 THEN concat(c.name,' ',u.name,' ','선생님') 
         WHEN sr.grade = 5 THEN concat(c.name,' ',k.name,'(',m.nickname,')') 
     END member_nickname,
-    f.address member_image, ]
+    f.address member_image, 
     sr.grade member_grade,
     sr.name member_type, 
     sr.id school_role_id,
@@ -33,14 +33,16 @@ select
     END target_member_nickname,
     (select array_to_json(
         array(
-            select row_to_json(tmp) 
+            select 
+                row_to_json(tmp) 
             from (select 
                     dc.id, 
                     dc.content, 
                     dc.is_modified is_modified, 
                     dc.is_deleted is_deleted,
                     to_char(dc.created_at, 'YYYY-MM-DD"T"HH24:MI:ss.MS"Z"') created_at,
-                    to_char(dc.updated_at,'YYYY-MM-DD"T"HH24:MI:ss.MS"Z"') updated_at,fm.id member_id,
+                    to_char(dc.updated_at,'YYYY-MM-DD"T"HH24:MI:ss.MS"Z"') updated_at,
+                    fm.id member_id,
                     CASE 
                         WHEN fsr.grade = 1 THEN concat(sf.name) 
                         WHEN fsr.grade < 3 THEN concat(fu.name,' ',fsr.name) 
@@ -81,7 +83,11 @@ select
                     left join school_roles ttsr on ttsr.id = ttm.school_role_id
                     left join kid ttk on ttk.id = ttm.kid_id
                     left join users ttu on ttu.id = ttm.user_id
-                    left join file fmf on fm.image_id = fmf.id where tc.comment_id = cm.id order by dc.created_at asc )tmp
+                    left join file fmf on fm.image_id = fmf.id 
+                where 
+                    tc.comment_id = cm.id 
+                order by dc.created_at asc
+                )tmp
             )
         ) tocomment
     )
@@ -99,5 +105,7 @@ from comment cm
     join school_roles sr on m.school_role_id = sr.id
     left join kid k on k.id = m.kid_id
     left join users tu on tu.id = tm.user_id
-where cm.post_id = '${postId}' 
-order by cm.created_at asc;
+where 
+    cm.post_id = '${postId}'
+order by 
+    cm.created_at asc;

@@ -14,7 +14,7 @@ select
                         c.id class_id 
                     from 
                         allowed_member am
-                        join member m on am.member_id = m.id 
+                        join members m on am.member_id = m.id 
                         left join file f on m.image_id = f.id
                         join class c on m.class_id = c.id 
                         left join kid k on k.id = m.kid_id
@@ -46,7 +46,7 @@ select
                                         c.id class_id, 
                                         k.name kid_name
                                     from 
-                                        member m 
+                                        members m 
                                         join file f on m.image_id = f.id 
                                         join class c on c.id = m.class_id 
                                         join kid k on k.id = m.kid_id
