@@ -262,6 +262,7 @@ async function main(req, res) {
   let qTotal;
   if (grade === 1) {
     if (classes.length > 0 && cntClass !== classes.length) {
+      console.log('===============', 8.1);
       qPost = await QTS.getOne.fQuery({
         memberId,
         endDate,
@@ -278,6 +279,7 @@ async function main(req, res) {
         isPublished,
       });
     } else if (search) {
+      console.log('===============', 8.2);
       let qts;
       let qtsCnt;
       if (category.length === 0) {
@@ -312,6 +314,7 @@ async function main(req, res) {
         isPublished,
       });
     } else if (temp) {
+      console.log('===============', 8.3);
       qPost = await QTS.getOneTemp.fQuery({
         memberId,
         endDate,
@@ -322,6 +325,7 @@ async function main(req, res) {
         isPublished,
       });
     } else {
+      console.log('===============', 8.4);
       qPost = await QTS.getOneElse.fQuery({
         memberId,
         schoolId,
@@ -336,6 +340,7 @@ async function main(req, res) {
       });
     }
   } else if (grade === 2) {
+    console.log('===============', 8.5);
     if (search) {
       let qts;
       let qtsCnt;
@@ -398,6 +403,7 @@ async function main(req, res) {
       });
     }
   } else {
+    console.log('===============', 8.6);
     if (search) {
       let qts;
       let qtsCnt;
@@ -433,6 +439,7 @@ async function main(req, res) {
         isPublished,
       });
     } else {
+      console.log('===============', 8.7);
       qPost = await QTS.getElseElse.fQuery({
         memberId,
         schoolId,
@@ -455,6 +462,8 @@ async function main(req, res) {
   const post = qPost.message.rows;
   console.log('===============', 10);
   console.log(qTotal);
+  if (qTotal.type === 'error')
+    return qMember.onError(res, '3.2', 'searching total');
   const totalCount = qTotal.message.rows[0].count;
   let totalPage = 0;
   if (temp) totalPage = 1;
