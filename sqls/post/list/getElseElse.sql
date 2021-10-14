@@ -228,7 +228,7 @@ select
 
 from
     post p
-    left join survey s on s.post_id = p.id,
+    left join survey s on s.post_id = p.id
 where
     p.post_type = 0
     and (

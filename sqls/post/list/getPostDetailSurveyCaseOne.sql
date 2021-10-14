@@ -236,6 +236,6 @@ select
     ) survey_submit_member
 from
     post p
-    left join survey s on s.post_id = p.id,
+    left join survey s on s.post_id = p.id
 where
     s.post_id = '${postId}';
