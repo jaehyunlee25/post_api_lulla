@@ -204,7 +204,7 @@ select
     -- author_image
     (select f.address 
     from file f 
-        left join members on member.id = p.author_id 
+        left join members on members.id = p.author_id 
     where f.id = member.image_id) author_image,
     -- complete_survey
     (1=CAST(
