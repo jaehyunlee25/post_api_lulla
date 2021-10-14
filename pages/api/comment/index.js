@@ -68,6 +68,7 @@ async function get(req, res) {
   const { schoolId /* , grade, classId, kidId */ } = qMember.message;
 
   console.log(content, commentId, targetMemberId, schoolId);
+  return true;
 }
 async function post(req, res) {
   // #3.1. 사용자 토큰을 이용해 userId를 추출한다.
@@ -93,7 +94,7 @@ async function post(req, res) {
   );
   if (qMember.type === 'error')
     return qMember.onError(res, '3.2', 'fatal error while searching member');
-  const { schoolId /* , grade, classId, kidId */ } = qMember.message;
+  // const { schoolId /* , grade, classId, kidId */ } = qMember.message;
 
   // #3.3. comment 검색
   const qComment = await QTS.getComment.fQuery({ commentId });
