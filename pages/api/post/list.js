@@ -454,6 +454,7 @@ async function main(req, res) {
   console.log('===============', 9);
   const post = qPost.message.rows;
   console.log('===============', 10);
+  console.log(qTotal);
   const totalCount = qTotal.message.rows[0].count;
   let totalPage = 0;
   if (temp) totalPage = 1;
