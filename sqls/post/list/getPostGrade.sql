@@ -1,8 +1,15 @@
 select 
-	p.grade grade
-from permission_member pm
-	left join permission p on pm.permission_id = p.id
+	distinct(grade) grade
+from 
+	permissions 
 where 
-	pm.member_id = '${memberId}'
+	id in (select 
+				unnest(permissions) 
+			from 
+				member_permissions 
+			where 
+				member_id = '${memberId}'
+			)
 	and type = 1
-	and action = ${action};
+	and action = 2
+order by grade asc;
