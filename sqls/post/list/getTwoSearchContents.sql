@@ -206,7 +206,7 @@ select
     (select f.address 
     from file f 
         left join members on members.id = p.author_id 
-    where f.id = member.image_id) author_image,
+    where f.id = members.image_id) author_image,
     -- complete_survey
     (1=CAST(
         (select count(*) 
