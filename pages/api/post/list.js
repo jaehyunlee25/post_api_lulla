@@ -463,7 +463,8 @@ async function main(req, res) {
   console.log('===============', 10);
   console.log(qTotal);
   if (qTotal.type === 'error')
-    return qMember.onError(res, '3.2', 'searching total');
+    return qTotal.onError(res, '3.2', 'searching total');
+
   const totalCount = qTotal.message.rows[0].count;
   let totalPage = 0;
   if (temp) totalPage = 1;
