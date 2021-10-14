@@ -147,6 +147,7 @@ async function main(req, res) {
     if (qCon.type === 'error')
       return qCon.onError(res, '3.3', 'searching congrat post');
 
+    console.log('===============', 1);
     const postCongrat = qCon.message.rows[0];
     const congrat = {
       id: postCongrat.id,
@@ -192,6 +193,7 @@ async function main(req, res) {
     const qSVC = await QTS.getSVcount.fQuery({ postId });
     if (qSVC.type === 'error')
       return qSVC.onError(res, '3.4.3', 'counting survey');
+    console.log('===============', 2);
     const cntAM = qAM.message.rows[0].count;
     const cntAC = qAM.message.rows[0].count;
     const cntSV = qSVC.message.rows[0].count;
@@ -210,6 +212,8 @@ async function main(req, res) {
       memberId,
       endDate,
     });
+
+    console.log('===============', 3);
     if (qPostDetail.type === 'error')
       return qPostDetail.onError(res, '3.5.1', 'searching post detail');
     const postDetail = qPostDetail.message.rows[0];
@@ -217,11 +221,13 @@ async function main(req, res) {
     const qAllComment = await QTS.getAllComment.fQuery({ postId });
     if (qAllComment.type === 'error')
       return qAllComment.onError(res, '3.6.1', 'searching comments');
+    console.log('===============', 4);
     const comment = qAllComment.message.rows;
     // #3.7. 좋아요 구하기
     const qAllLikes = await QTS.getAllLikes.fQuery({ postId });
     if (qAllLikes.type === 'error')
       return qAllLikes.onError(res, '3.6.1', 'searching likes');
+    console.log('===============', 5);
     const like = qAllLikes.message.rows;
 
     return RESPOND(res, {
@@ -235,6 +241,7 @@ async function main(req, res) {
   const action = 2;
   const qPG = await QTS.getPostGrade.fQuery({ memberId, action });
   if (qPG.type === 'error') return qPG.onError(res, '3.8.1', 'searching likes');
+  console.log('===============', 6);
   if (qPG.message.rows.length === 0)
     return ERROR(res, {
       resultCode: 401,
@@ -242,11 +249,13 @@ async function main(req, res) {
       id: 'ERR.post.index.3.8.2',
       data: { post: [], total_count: 0, total_page: 0 },
     });
+  console.log('===============', 7);
   const { grade } = qPG.message.rows[0];
 
   const qCountClass = await QTS.getCountClass.fQuery({ schoolId });
   if (qCountClass.type === 'error')
     return qCountClass.onError(res, '3.8.1', 'searching likes');
+  console.log('===============', 8);
   const { cntClass } = qCountClass.message.rows[0].count;
 
   let qPost;
@@ -442,7 +451,9 @@ async function main(req, res) {
     }
   }
 
+  console.log('===============', 9);
   const post = qPost.message.rows;
+  console.log('===============', 10);
   const totalCount = qTotal.message.rows[0].count;
   let totalPage = 0;
   if (temp) totalPage = 1;
