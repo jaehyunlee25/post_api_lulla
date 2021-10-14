@@ -471,7 +471,10 @@ async function main(req, res) {
   else totalPage = Math.ceil(totalCount / pageSize);
 
   return RESPOND(res, {
-    data: { post, total_count: totalCount, total_page: totalPage },
+    // data: { post, total_count: totalCount, total_page: totalPage },
+    datas: post,
+    total_count: totalCount,
+    total_page: totalPage,
     message: '공지사항 출력 성공',
     resultCode: 200,
   });
