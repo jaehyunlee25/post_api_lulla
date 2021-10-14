@@ -23,22 +23,22 @@ const QTS = {
   getOneTotal: 'getTotal',
   // grade one search
   getOneSearchNone: 'getOneSearchNone',
-  getOneTotalSearchNone: 'getTotalSearchNone',
+  getOneTotalSearchNone: 'getOneTotalSearchNone',
 
   getOneSearchContents: 'getOneSearchContents',
-  getOneTotalSearchContents: 'getTotalSearchContents',
+  getOneTotalSearchContents: 'getOneTotalSearchContents',
 
   getOneSearchAuthor: 'getOneSearchAuthor',
-  getOneTotalSearchAuthor: 'getTotalSearchAuthor',
+  getOneTotalSearchAuthor: 'getOneTotalSearchAuthor',
 
   getOneSearchBoth: 'getOneSearchBoth',
-  getOneTotalSearchBoth: 'getTotalSearchBoth',
+  getOneTotalSearchBoth: 'getOneTotalSearchBoth',
   // grade one temp
   getOneTemp: 'getOneTemp',
-  getOneTotalTemp: 'getTotalTemp',
+  getOneTotalTemp: 'getOneTotalTemp',
   // grade one else
   getOneElse: 'getOneElse',
-  getOneTotalElse: 'getTotalElse',
+  getOneTotalElse: 'getOneTotalElse',
 
   // grade two search
   getTwoSearchNone: 'getTwoSearchNone',
