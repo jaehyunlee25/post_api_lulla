@@ -10,7 +10,7 @@ const QTS = {
   // Query TemplateS
   getComment: 'getCommentById',
   newComment: 'newComment',
-  toComment: 'newToComment',
+  newToComment: 'newToComment',
 };
 
 // req.body를 만들지 않도록 한다.
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     return await get(req, res);
   } catch (e) {
     return ERROR(res, {
-      id: 'ERR.post.index.3.2.2',
+      id: 'ERR.comment.index.3.2.2',
       message: 'post server logic error',
       error: e.toString(),
     });
@@ -78,7 +78,7 @@ async function post(req, res) {
   if (qUserId.type === 'error') return qUserId.onError(res, '3.1');
   const userId = qUserId.message;
 
-  const { member_id: memberId, comment } = req.query;
+  const { member_id: memberId, comment } = req.body;
   const {
     content,
     comment_id: commentId,
@@ -99,7 +99,7 @@ async function post(req, res) {
   // #3.3. comment 검색
   const qComment = await QTS.getComment.fQuery({ commentId });
   if (qComment.type === 'error')
-    return qComment.onError(res, '3.2', 'fatal error while searching member');
+    return qComment.onError(res, '3.3', 'fatal error while searching member');
   if (qComment.message.rows.length === 0)
     return ERROR(res, {
       resultCode: 400,
@@ -113,25 +113,25 @@ async function post(req, res) {
     targetMemberId,
   });
   if (qNew.type === 'error')
-    return qNew.onError(res, '3.2', 'creating comment');
+    return qNew.onError(res, '3.4', 'creating comment');
   const toCommentId = qNew.message.rows[0].id;
 
   // #3.5. 대댓글 연결
-  const qTo = await QTS.newComment.fQuery({
+  const qTo = await QTS.newToComment.fQuery({
     commentId,
     toCommentId,
   });
   if (qTo.type === 'error')
-    return qTo.onError(res, '3.2', 'creating tocomment');
+    return qTo.onError(res, '3.5', 'creating tocomment');
 
   // #3.6. 대댓글 소환
-  const qToCom = await QTS.getComment.fQuery({ toCommentId });
+  const qToCom = await QTS.getComment.fQuery({ commentId: toCommentId });
   if (qToCom.type === 'error')
-    return qToCom.onError(res, '3.2', 'searching tocomment');
-  // const comment = qToCom.message.rows[0];
+    return qToCom.onError(res, '3.6', 'searching tocomment');
+  const userComment = qToCom.message.rows[0];
 
   return RESPOND(res, {
-    comment,
+    comment: userComment,
     message: '성공적으로 대댓글을 생성하였습니다.',
     resultCode: 200,
   });

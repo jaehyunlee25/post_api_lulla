@@ -125,7 +125,7 @@ async function main(req, res) {
   } = req.body;
 
   const pageSize = 30;
-  const page = pageSize * (userPage === undefined ? 1 : userPage);
+  const page = pageSize * ((userPage === undefined ? 1 : userPage) - 1);
   const endDate = await getFormatDate(new Date());
   const isPublished = !temp;
   const strClasses = ["'", classes.join("','"), "'"].join('');
