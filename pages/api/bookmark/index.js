@@ -8,8 +8,8 @@ import setBaseURL from '../../../lib/pgConn'; // include String.prototype.fQuery
 
 const QTS = {
   // Query TemplateS
-  getComment: 'getCommentById',
-  setComment: 'setComment',
+  getAllBM: 'getAllBookmarks',
+  getBMtype: 'getBookmarksByType',
 };
 
 // req.body를 만들지 않도록 한다.
@@ -21,19 +21,19 @@ export default async function handler(req, res) {
     'Access-Control-Allow-Origin': '*', // for same origin policy
     'Content-Type': 'application/json',
     'Access-Control-Allow-Headers': ['Content-Type', 'Authorization'], // for application/json
-    'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+    'Access-Control-Allow-Methods': 'GET',
   });
   // #2. preflight 처리
   if (req.method === 'OPTIONS') return RESPOND(res, {});
 
-  setBaseURL('sqls/comment/update'); // 끝에 슬래시 붙이지 마시오.
+  setBaseURL('sqls/bookmark/bookmark'); // 끝에 슬래시 붙이지 마시오.
 
   // #3.1.
   try {
     return await main(req, res);
   } catch (e) {
     return ERROR(res, {
-      id: 'ERR.comment.update.3.2.2',
+      id: 'ERR.bookmark.bookmark.3.2.2',
       message: 'post server logic error',
       error: e.toString(),
     });
@@ -47,8 +47,7 @@ async function main(req, res) {
   if (qUserId.type === 'error') return qUserId.onError(res, '3.1');
   const userId = qUserId.message;
 
-  const { member_id: memberId, comment } = req.body;
-  const { content, id: commentId } = comment;
+  const { member_id: memberId, type } = req.query;
 
   // #3.2. member 검색
   const qMember = await POST(
@@ -61,36 +60,17 @@ async function main(req, res) {
     return qMember.onError(res, '3.2', 'fatal error while searching member');
   // const { schoolId /* , grade, classId, kidId */ } = qMember.message;
 
-  // #3.3. comment 검색
-  const qComment = await QTS.getComment.fQuery({ commentId });
-  if (qComment.type === 'error')
-    return qComment.onError(res, '3.3', 'searching comment');
-  if (qComment.message.rows.length === 0)
-    return ERROR(res, {
-      resultCode: 400,
-      message: '수정할 댓글을 찾을 수 없습니다.',
-    });
-  if (qComment.message.rows[0].member_id !== memberId) {
-    return ERROR(res, {
-      resultCode: 401,
-      message: '해당 댓글을 수정할 권한을 가지고 있지 않습니다.',
-    });
-  }
+  // #3.3. bookmark 검색
+  const query = type === 0 ? QTS.getAllBM : QTS.getBMtype;
+  const qBM = await query.fQuery({ memberId, type });
+  if (qBM.type === 'error')
+    return qBM.onError(res, '3.3', 'searching bookmarks');
 
-  // #3.4. comment 수정
-  const qSet = await QTS.setComment.fQuery({ content, commentId });
-  if (qSet.type === 'error')
-    return qSet.onError(res, '3.4', 'updating comment');
-
-  // #3.5. 댓글 소환
-  const qCom = await QTS.getComment.fQuery({ commentId });
-  if (qCom.type === 'error')
-    return qCom.onError(res, '3.6', 'searching tocomment');
-  const userComment = qCom.message.rows[0];
+  const bookmark = qBM.message.rows;
 
   return RESPOND(res, {
-    comment: userComment,
-    message: '성공적으로 대댓글을 수정하였습니다.',
+    bookmark,
+    message: '북마크 리스트를 반환하였습니다.',
     resultCode: 200,
   });
 }
