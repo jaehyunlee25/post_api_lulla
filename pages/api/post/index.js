@@ -67,6 +67,7 @@ async function main(req, res) {
     allowed_member: allowedMember,
     survey_id: surveyId,
     file_list: fileList,
+    deleted_list: deletedList,
     is_published: isPublished, // 푸쉬알림 관련
   } = userPost;
   let { allowed_class: allowedClass } = userPost;
@@ -203,6 +204,18 @@ async function main(req, res) {
         });
       return true;
     });
+  }
+
+  // #3.9. deletedList 처리
+  if (deletedList) {
+    const qDels = await POST(
+      'file',
+      '/delete',
+      { 'Content-Type': 'application/json' },
+      { file: { id: deletedList } },
+    );
+    if (qDels.type === 'error')
+      return qDels.onError(res, '3.2', 'fatal error while searching member');
   }
 
   // #3.9. 임시저장 여부 처리
