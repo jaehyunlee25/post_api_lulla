@@ -489,7 +489,7 @@ async function detail(req, res) {
     return qPostDetail.onError(res, '3.5.1', 'searching post detail');
   const postDetail = qPostDetail.message.rows[0];
   // #3.6. 댓글 구하기
-  const qAllComment = await QTS.getAllComment.fQuery({ postId });
+  const qAllComment = await QTS.getAllComments.fQuery({ postId });
   if (qAllComment.type === 'error')
     return qAllComment.onError(res, '3.6.1', 'searching comments');
   console.log('===============', 4);
