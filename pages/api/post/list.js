@@ -107,6 +107,7 @@ export default async function handler(req, res) {
   }
 }
 async function main(req, res) {
+  if (req.body.id) return detail(req, res);
   console.log('111111111111111111111');
   // #3.1. 사용자 토큰을 이용해 userId를 추출한다.
   // 이 getUserIdFromToken 함수는 user의 활성화 여부까지 판단한다.
@@ -181,63 +182,6 @@ async function main(req, res) {
       total_count: 1,
       total_page: 1,
       message: '성공적으로 데이터를 반환하였습니다.',
-      resultCode: 200,
-    });
-  }
-
-  if (postId) {
-    console.log('post detail', 11);
-    // #3.4. 변수 확보
-    const qAM = await QTS.getAMcount.fQuery({ postId });
-    if (qAM.type === 'error')
-      return qAM.onError(res, '3.4.1', 'counting allowed member');
-    console.log('post detail', 22);
-    const qAC = await QTS.getACcount.fQuery({ postId });
-    if (qAC.type === 'error')
-      return qAC.onError(res, '3.4.2', 'counting allowed class');
-    console.log('post detail', 33);
-    const qSVC = await QTS.getSVcount.fQuery({ postId });
-    if (qSVC.type === 'error')
-      return qSVC.onError(res, '3.4.3', 'counting survey');
-    console.log('===============', 44);
-    const cntAM = qAM.message.rows[0].count;
-    const cntAC = qAM.message.rows[0].count;
-    const cntSV = qSVC.message.rows[0].count;
-    console.log('===============', 55);
-    // #3.5. 공지사항 구하기
-    let qts;
-    if (cntSV > 0) {
-      if (cntAM === 0 && cntAC === 0) qts = QTS.getPDSCTwo;
-      else qts = QTS.getPDSCThree;
-    } else {
-      qts = QTS.getPDSCOne;
-    }
-    const qPostDetail = await qts.fQuery({
-      postId,
-      schoolId,
-      memberId,
-      endDate,
-    });
-    console.log('===============', 3);
-    if (qPostDetail.type === 'error')
-      return qPostDetail.onError(res, '3.5.1', 'searching post detail');
-    const postDetail = qPostDetail.message.rows[0];
-    // #3.6. 댓글 구하기
-    const qAllComment = await QTS.getAllComment.fQuery({ postId });
-    if (qAllComment.type === 'error')
-      return qAllComment.onError(res, '3.6.1', 'searching comments');
-    console.log('===============', 4);
-    const comment = qAllComment.message.rows;
-    // #3.7. 좋아요 구하기
-    const qAllLikes = await QTS.getAllLikes.fQuery({ postId });
-    if (qAllLikes.type === 'error')
-      return qAllLikes.onError(res, '3.6.1', 'searching likes');
-    console.log('===============', 5);
-    const like = qAllLikes.message.rows;
-
-    return RESPOND(res, {
-      data: { post: postDetail, comment, like },
-      message: '해당하는 데이터를 성공적으로 반환하였습니다.',
       resultCode: 200,
     });
   }
@@ -481,6 +425,85 @@ async function main(req, res) {
     total_count: totalCount,
     total_page: totalPage,
     message: '공지사항 출력 성공',
+    resultCode: 200,
+  });
+}
+async function detail(req, res) {
+  console.log('111111111111111111111');
+  // #3.1. 사용자 토큰을 이용해 userId를 추출한다.
+  // 이 getUserIdFromToken 함수는 user의 활성화 여부까지 판단한다.
+  // userId가 정상적으로 리턴되면, 활성화된 사용자이다.
+  const qUserId = await getUserIdFromToken(req.headers.authorization);
+  if (qUserId.type === 'error') return qUserId.onError(res, '3.1');
+  const userId = qUserId.message;
+  console.log('22222222222222222222');
+  const { member_id: memberId, id: postId } = req.body;
+
+  console.log('post detail', 11);
+  // #3.2. member 검색
+  const qMember = await POST(
+    'school',
+    '/checkMember',
+    { 'Content-Type': 'application/json' },
+    { userId, memberId },
+  );
+  if (qMember.type === 'error')
+    return qMember.onError(res, '3.2', 'fatal error while searching member');
+  const { schoolId /* , classId, grade, kidId */ } = qMember.message;
+
+  const endDate = await getFormatDate(new Date());
+
+  // #3.4. 변수 확보
+  const qAM = await QTS.getAMcount.fQuery({ postId });
+  if (qAM.type === 'error')
+    return qAM.onError(res, '3.4.1', 'counting allowed member');
+  console.log('post detail', 22);
+  const qAC = await QTS.getACcount.fQuery({ postId });
+  if (qAC.type === 'error')
+    return qAC.onError(res, '3.4.2', 'counting allowed class');
+  console.log('post detail', 33);
+  const qSVC = await QTS.getSVcount.fQuery({ postId });
+  if (qSVC.type === 'error')
+    return qSVC.onError(res, '3.4.3', 'counting survey');
+  console.log('===============', 44);
+  const cntAM = qAM.message.rows[0].count;
+  const cntAC = qAM.message.rows[0].count;
+  const cntSV = qSVC.message.rows[0].count;
+  console.log('===============', 55);
+  // #3.5. 공지사항 구하기
+  let qts;
+  if (cntSV > 0) {
+    if (cntAM === 0 && cntAC === 0) qts = QTS.getPDSCTwo;
+    else qts = QTS.getPDSCThree;
+  } else {
+    qts = QTS.getPDSCOne;
+  }
+  const qPostDetail = await qts.fQuery({
+    postId,
+    schoolId,
+    memberId,
+    endDate,
+  });
+  console.log('===============', 3);
+  if (qPostDetail.type === 'error')
+    return qPostDetail.onError(res, '3.5.1', 'searching post detail');
+  const postDetail = qPostDetail.message.rows[0];
+  // #3.6. 댓글 구하기
+  const qAllComment = await QTS.getAllComment.fQuery({ postId });
+  if (qAllComment.type === 'error')
+    return qAllComment.onError(res, '3.6.1', 'searching comments');
+  console.log('===============', 4);
+  const comment = qAllComment.message.rows;
+  // #3.7. 좋아요 구하기
+  const qAllLikes = await QTS.getAllLikes.fQuery({ postId });
+  if (qAllLikes.type === 'error')
+    return qAllLikes.onError(res, '3.6.1', 'searching likes');
+  console.log('===============', 5);
+  const like = qAllLikes.message.rows;
+
+  return RESPOND(res, {
+    data: { post: postDetail, comment, like },
+    message: '해당하는 데이터를 성공적으로 반환하였습니다.',
     resultCode: 200,
   });
 }
