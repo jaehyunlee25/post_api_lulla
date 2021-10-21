@@ -248,4 +248,4 @@ from
     post p
     left join survey s on s.post_id = p.id
 where
-    s.post_id = '${postId}';
+    p.id = '${postId}';
