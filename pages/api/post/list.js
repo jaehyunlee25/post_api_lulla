@@ -100,20 +100,21 @@ export default async function handler(req, res) {
     return await main(req, res);
   } catch (e) {
     return ERROR(res, {
-      id: 'ERR.post.index.3.2.2',
+      id: 'ERR.post.index.3.2.1',
       message: 'post server logic error',
       error: e.toString(),
     });
   }
 }
 async function main(req, res) {
+  console.log('111111111111111111111');
   // #3.1. 사용자 토큰을 이용해 userId를 추출한다.
   // 이 getUserIdFromToken 함수는 user의 활성화 여부까지 판단한다.
   // userId가 정상적으로 리턴되면, 활성화된 사용자이다.
   const qUserId = await getUserIdFromToken(req.headers.authorization);
   if (qUserId.type === 'error') return qUserId.onError(res, '3.1');
   const userId = qUserId.message;
-
+  console.log('22222222222222222222');
   const {
     member_id: memberId,
     class: classes,
@@ -130,6 +131,7 @@ async function main(req, res) {
   const isPublished = !temp;
   const strClasses = ["'", classes.join("','"), "'"].join('');
 
+  console.log('33333333333333333333');
   // #3.2. member 검색
   const qMember = await POST(
     'school',
@@ -141,6 +143,7 @@ async function main(req, res) {
     return qMember.onError(res, '3.2', 'fatal error while searching member');
   const { schoolId, classId /* , grade, kidId */ } = qMember.message;
 
+  console.log('444444444444444444444444');
   // #3.3. 프로필이 없는 경우 축하메시지
   if (!schoolId) {
     const qCon = await QTS.getPostCongrat.fQuery({ postId });
