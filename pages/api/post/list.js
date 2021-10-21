@@ -143,7 +143,7 @@ async function main(req, res) {
 
   // #3.3. 프로필이 없는 경우 축하메시지
   if (!schoolId) {
-    const qCon = await QTS.getPostCongrat.fQuery({});
+    const qCon = await QTS.getPostCongrat.fQuery({ postId });
     if (qCon.type === 'error')
       return qCon.onError(res, '3.3', 'searching congrat post');
 
@@ -183,21 +183,24 @@ async function main(req, res) {
   }
 
   if (postId) {
+    console.log('post detail', 11);
     // #3.4. 변수 확보
     const qAM = await QTS.getAMcount.fQuery({ postId });
     if (qAM.type === 'error')
       return qAM.onError(res, '3.4.1', 'counting allowed member');
+    console.log('post detail', 22);
     const qAC = await QTS.getACcount.fQuery({ postId });
     if (qAC.type === 'error')
       return qAC.onError(res, '3.4.2', 'counting allowed class');
+    console.log('post detail', 33);
     const qSVC = await QTS.getSVcount.fQuery({ postId });
     if (qSVC.type === 'error')
       return qSVC.onError(res, '3.4.3', 'counting survey');
-    console.log('===============', 2);
+    console.log('===============', 44);
     const cntAM = qAM.message.rows[0].count;
     const cntAC = qAM.message.rows[0].count;
     const cntSV = qSVC.message.rows[0].count;
-
+    console.log('===============', 55);
     // #3.5. 공지사항 구하기
     let qts;
     if (cntSV > 0) {
@@ -212,7 +215,6 @@ async function main(req, res) {
       memberId,
       endDate,
     });
-
     console.log('===============', 3);
     if (qPostDetail.type === 'error')
       return qPostDetail.onError(res, '3.5.1', 'searching post detail');
