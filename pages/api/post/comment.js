@@ -75,7 +75,7 @@ async function get(req, res) {
     return qAll.onError(res, '3.4.1', 'getting all comments');
   const comment = qAll.message.rows;
   return RESPOND(res, {
-    comment,
+    datas: comment,
     message: '해당하는 포스트의 댓글을 성공적으로 반환하였습니다.',
     resultCode: 200,
   });

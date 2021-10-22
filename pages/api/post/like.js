@@ -76,7 +76,7 @@ async function get(req, res) {
     return qAll.onError(res, '3.4.1', 'getting all likes');
   const like = qAll.message.rows;
   return RESPOND(res, {
-    like,
+    datas: like,
     message: '해당하는 포스트에 좋아요를 성공적으로 반환하였습니다.',
     resultCode: 200,
   });
