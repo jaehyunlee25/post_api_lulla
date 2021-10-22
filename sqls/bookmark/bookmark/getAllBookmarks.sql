@@ -34,7 +34,7 @@ select
     END album_image
 from bookmark b 
     left join post p on b.post_id = p.id
-    left join member m on p.author_id = m.id
+    left join members m on p.author_id = m.id
     left join school_role sr on m.school_role_id = sr.id
     left join users u on u.id = m.user_id
     left join kid k on k.id = m.kid_id

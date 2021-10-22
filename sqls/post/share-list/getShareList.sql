@@ -92,7 +92,7 @@ select
                                                 (select 
                                                     m.id 
                                                 from 
-                                                    member m 
+                                                    members m 
                                                 where 
                                                     m.class_id in (select 
                                                                         ac.class_id 
@@ -201,7 +201,7 @@ select
                                     or m.id in 
                                             -- allowed_class_member
                                             (select m.id 
-                                            from member m 
+                                            from members m 
                                             where 
                                                 m.class_id in 
                                                                 -- allowed_class
