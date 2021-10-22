@@ -88,7 +88,7 @@ async function main(req, res) {
 
   if (qBM.message.rows.length === 0) {
     // #3.7. bookmark 생성
-    const qNew = await QTS.newBM.fQuery({ memberId, postId });
+    const qNew = await QTS.newBM.fQuery({ memberId, imageId });
     if (qNew.type === 'error')
       return qNew.onError(res, '3.4', 'creating bookmark');
 
