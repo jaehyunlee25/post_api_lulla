@@ -215,7 +215,7 @@ async function main(req, res) {
       { file: { id: deletedList } },
     );
     if (qDels.type === 'error')
-      return qDels.onError(res, '3.2', 'fatal error while searching member');
+      return qDels.onError(res, '3.9.1', 'deleting file');
   }
 
   // #3.9. 임시저장 여부 처리
