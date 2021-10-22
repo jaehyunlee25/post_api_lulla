@@ -116,17 +116,19 @@ async function main(req, res) {
   });
 
   // #3.8. 파일을 s3에서 삭제한다.
-  const qS3 = await POST(
-    'file',
-    '/delete',
-    {
-      'Content-Type': 'application/json',
-      Authorization: req.headers.authorization,
-    },
-    { file: { id: fileIds } },
-  );
-  if (qS3.type === 'error')
-    return qS3.onError(res, '3.8.1', 'fatal error while deleting files');
+  if (fileIds.length > 0) {
+    const qS3 = await POST(
+      'file',
+      '/delete',
+      {
+        'Content-Type': 'application/json',
+        Authorization: req.headers.authorization,
+      },
+      { file: { id: fileIds } },
+    );
+    if (qS3.type === 'error')
+      return qS3.onError(res, '3.8.1', 'fatal error while deleting files');
+  }
 
   // #3.9. 공지를 삭제한다.
   const qDels = await QTS.delPosts.fQuery({ delPostIds });
