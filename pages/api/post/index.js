@@ -235,11 +235,10 @@ async function main(req, res) {
     const { nickname } = qNick.message.rows[0];
   } */
 
-  return true;
-  /* return RESPOND(res, {
+  return RESPOND(res, {
     message: '게시물 저장에 성공했습니다.',
     resultCode: 200,
-  }); */
+  });
 }
 async function updatePost(postId, param) {
   const { memberId, important, title, contents, isPublished } = param;
