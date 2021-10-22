@@ -9,6 +9,8 @@ import setBaseURL from '../../../lib/pgConn'; // include String.prototype.fQuery
 const QTS = {
   // Query TemplateS
   getFile: 'getFileById',
+  getBM: '',
+  newBM: '',
 };
 
 // req.body를 만들지 않도록 한다.
