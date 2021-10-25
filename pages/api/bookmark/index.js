@@ -61,12 +61,8 @@ async function main(req, res) {
   // const { schoolId /* , grade, classId, kidId */ } = qMember.message;
 
   // #3.3. bookmark 검색
-  const query = type === 0 ? QTS.getAllBM : QTS.getBMtype;
-
-  console.log('=======');
-  console.log(type, type === 0);
-  console.log('=======');
-
+  // eslint-disable-next-line eqeqeq
+  const query = type == 0 ? QTS.getAllBM : QTS.getBMtype;
   const qBM = await query.fQuery({ memberId, type });
   if (qBM.type === 'error')
     return qBM.onError(res, '3.3', 'searching bookmarks');
