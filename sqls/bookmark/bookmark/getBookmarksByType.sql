@@ -47,4 +47,4 @@ where
     b.member_id = '${memberId}' 
     and b.type = ${type}
 order by 
-    b.created_at DESC
+    b.created_at DESC;

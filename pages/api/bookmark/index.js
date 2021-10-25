@@ -62,6 +62,11 @@ async function main(req, res) {
 
   // #3.3. bookmark 검색
   const query = type === 0 ? QTS.getAllBM : QTS.getBMtype;
+
+  console.log('=======');
+  console.log(type, type === 0);
+  console.log('=======');
+
   const qBM = await query.fQuery({ memberId, type });
   if (qBM.type === 'error')
     return qBM.onError(res, '3.3', 'searching bookmarks');

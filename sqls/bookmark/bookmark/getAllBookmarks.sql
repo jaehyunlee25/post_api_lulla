@@ -46,4 +46,4 @@ from bookmark b
 where 
     b.member_id = '${memberId}' 
 order by 
-    b.created_at DESC
+    b.created_at DESC;
