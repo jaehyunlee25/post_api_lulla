@@ -20,7 +20,7 @@ const QTS = {
   getAllLikes: 'getAllLikes',
   // grade one
   getOne: 'getOne',
-  getOneTotal: 'getTotal',
+  getOneTotal: 'getOneTotal',
   // grade one search
   getOneSearchNone: 'getOneSearchNone',
   getOneTotalSearchNone: 'getOneTotalSearchNone',
