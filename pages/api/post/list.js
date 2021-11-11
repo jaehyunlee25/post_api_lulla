@@ -78,6 +78,7 @@ const QTS = {
   getPostGrade: 'getPostGrade',
   getCountClass: 'getCountClass',
 };
+let EXEC_STEP = 0;
 
 // req.body를 만들지 않도록 한다.
 // export const config = { api: { bodyParser: false } };
@@ -100,22 +101,24 @@ export default async function handler(req, res) {
     return await main(req, res);
   } catch (e) {
     return ERROR(res, {
-      id: 'ERR.post.index.3.2.1',
+      id: 'ERR.post.list.3.2.1',
       message: 'post server logic error',
       error: e.toString(),
+      step: EXEC_STEP,
     });
   }
 }
 async function main(req, res) {
   if (req.body.id) return detail(req, res);
-  console.log('111111111111111111111');
   // #3.1. 사용자 토큰을 이용해 userId를 추출한다.
   // 이 getUserIdFromToken 함수는 user의 활성화 여부까지 판단한다.
   // userId가 정상적으로 리턴되면, 활성화된 사용자이다.
+  EXEC_STEP = '3.0';
   const qUserId = await getUserIdFromToken(req.headers.authorization);
   if (qUserId.type === 'error') return qUserId.onError(res, '3.1');
   const userId = qUserId.message;
-  console.log('22222222222222222222');
+
+  EXEC_STEP = '3.1';
   const {
     member_id: memberId,
     class: classes,
@@ -132,8 +135,7 @@ async function main(req, res) {
   const isPublished = !temp;
   const strClasses = ["'", classes.join("','"), "'"].join('');
 
-  console.log('33333333333333333333');
-  // #3.2. member 검색
+  EXEC_STEP = '3.2'; // #3.2. member 검색
   const qMember = await POST(
     'school',
     '/checkMember',
@@ -141,17 +143,20 @@ async function main(req, res) {
     { userId, memberId },
   );
   if (qMember.type === 'error')
-    return qMember.onError(res, '3.2', 'fatal error while searching member');
+    return qMember.onError(
+      res,
+      EXEC_STEP,
+      'fatal error while searching member',
+    );
   const { schoolId, classId /* , grade, kidId */ } = qMember.message;
 
-  console.log('444444444444444444444444');
-  // #3.3. 프로필이 없는 경우 축하메시지
+  EXEC_STEP = '3.3'; // #3.3. 프로필이 없는 경우 축하메시지
   if (!schoolId) {
     const qCon = await QTS.getPostCongrat.fQuery({ postId });
     if (qCon.type === 'error')
       return qCon.onError(res, '3.3', 'searching congrat post');
 
-    console.log('===============', 1);
+    EXEC_STEP = '3.3.1';
     const postCongrat = qCon.message.rows[0];
     const congrat = {
       id: postCongrat.id,
@@ -186,11 +191,12 @@ async function main(req, res) {
     });
   }
 
-  // #3.8. memberId를 통해 포스트에 읽기 권한이 있는지 살펴본다.
+  EXEC_STEP = '3.8'; // #3.8. memberId를 통해 포스트에 읽기 권한이 있는지 살펴본다.
   const action = 2;
   const qPG = await QTS.getPostGrade.fQuery({ memberId, action });
   if (qPG.type === 'error') return qPG.onError(res, '3.8.1', 'searching likes');
-  console.log('===============', 6);
+
+  EXEC_STEP = '3.9';
   if (qPG.message.rows.length === 0)
     return ERROR(res, {
       resultCode: 401,
@@ -198,20 +204,22 @@ async function main(req, res) {
       id: 'ERR.post.index.3.8.2',
       data: { post: [], total_count: 0, total_page: 0 },
     });
-  console.log('===============', 7);
+
+  EXEC_STEP = '3.10';
   const { grade } = qPG.message.rows[0];
 
   const qCountClass = await QTS.getCountClass.fQuery({ schoolId });
   if (qCountClass.type === 'error')
     return qCountClass.onError(res, '3.8.1', 'searching likes');
-  console.log('===============', 8);
+
+  EXEC_STEP = '3.11';
   const { cntClass } = qCountClass.message.rows[0].count;
 
   let qPost;
   let qTotal;
   if (grade === 1) {
     if (classes.length > 0 && cntClass !== classes.length) {
-      console.log('===============', 8.1);
+      EXEC_STEP = '3.12';
       qPost = await QTS.getOne.fQuery({
         memberId,
         endDate,
@@ -228,7 +236,7 @@ async function main(req, res) {
         isPublished,
       });
     } else if (search) {
-      console.log('===============', 8.2);
+      EXEC_STEP = '3.13';
       let qts;
       let qtsCnt;
       if (category.length === 0) {
@@ -263,7 +271,7 @@ async function main(req, res) {
         isPublished,
       });
     } else if (temp) {
-      console.log('===============', 8.3);
+      EXEC_STEP = '3.14';
       qPost = await QTS.getOneTemp.fQuery({
         memberId,
         endDate,
@@ -274,7 +282,7 @@ async function main(req, res) {
         isPublished,
       });
     } else {
-      console.log('===============', 8.4);
+      EXEC_STEP = '3.15';
       qPost = await QTS.getOneElse.fQuery({
         memberId,
         schoolId,
@@ -289,7 +297,7 @@ async function main(req, res) {
       });
     }
   } else if (grade === 2) {
-    console.log('===============', 8.5);
+    EXEC_STEP = '3.16';
     if (search) {
       let qts;
       let qtsCnt;
@@ -352,7 +360,7 @@ async function main(req, res) {
       });
     }
   } else {
-    console.log('===============', 8.6);
+    EXEC_STEP = '3.17';
     if (search) {
       let qts;
       let qtsCnt;
@@ -407,9 +415,9 @@ async function main(req, res) {
     }
   }
 
-  console.log('===============', 9);
+  EXEC_STEP = '3.18';
   const post = qPost.message.rows;
-  console.log('===============', 10);
+  EXEC_STEP = '3.19';
   console.log(qTotal);
   if (qTotal.type === 'error')
     return qTotal.onError(res, '3.2', 'searching total');
@@ -429,17 +437,17 @@ async function main(req, res) {
   });
 }
 async function detail(req, res) {
-  console.log('111111111111111111111');
+  EXEC_STEP = '3.20';
   // #3.1. 사용자 토큰을 이용해 userId를 추출한다.
   // 이 getUserIdFromToken 함수는 user의 활성화 여부까지 판단한다.
   // userId가 정상적으로 리턴되면, 활성화된 사용자이다.
   const qUserId = await getUserIdFromToken(req.headers.authorization);
   if (qUserId.type === 'error') return qUserId.onError(res, '3.1');
   const userId = qUserId.message;
-  console.log('22222222222222222222');
+  EXEC_STEP = '3.21';
   const { member_id: memberId, id: postId } = req.body;
 
-  console.log('post detail', 11);
+  EXEC_STEP = '3.22';
   // #3.2. member 검색
   const qMember = await POST(
     'school',
@@ -448,7 +456,11 @@ async function detail(req, res) {
     { userId, memberId },
   );
   if (qMember.type === 'error')
-    return qMember.onError(res, '3.2', 'fatal error while searching member');
+    return qMember.onError(
+      res,
+      EXEC_STEP,
+      'fatal error while searching member',
+    );
   const { schoolId /* , classId, grade, kidId */ } = qMember.message;
 
   const endDate = await getFormatDate(new Date());
@@ -457,19 +469,23 @@ async function detail(req, res) {
   const qAM = await QTS.getAMcount.fQuery({ postId });
   if (qAM.type === 'error')
     return qAM.onError(res, '3.4.1', 'counting allowed member');
-  console.log('post detail', 22);
+
+  EXEC_STEP = '3.23';
   const qAC = await QTS.getACcount.fQuery({ postId });
   if (qAC.type === 'error')
     return qAC.onError(res, '3.4.2', 'counting allowed class');
-  console.log('post detail', 33);
+
+  EXEC_STEP = '3.24';
   const qSVC = await QTS.getSVcount.fQuery({ postId });
   if (qSVC.type === 'error')
     return qSVC.onError(res, '3.4.3', 'counting survey');
-  console.log('===============', 44);
+
+  EXEC_STEP = '3.25';
   const cntAM = qAM.message.rows[0].count;
   const cntAC = qAM.message.rows[0].count;
   const cntSV = qSVC.message.rows[0].count;
-  console.log('===============', 55);
+
+  EXEC_STEP = '3.26';
   // #3.5. 공지사항 구하기
   let qts;
   if (cntSV > 0) {
@@ -484,7 +500,8 @@ async function detail(req, res) {
     memberId,
     endDate,
   });
-  console.log('===============', 3);
+
+  EXEC_STEP = '3.27';
   if (qPostDetail.type === 'error')
     return qPostDetail.onError(res, '3.5.1', 'searching post detail');
   const postDetail = qPostDetail.message.rows[0];
@@ -492,13 +509,15 @@ async function detail(req, res) {
   const qAllComment = await QTS.getAllComments.fQuery({ postId });
   if (qAllComment.type === 'error')
     return qAllComment.onError(res, '3.6.1', 'searching comments');
-  console.log('===============', 4);
+
+  EXEC_STEP = '3.28';
   const comment = qAllComment.message.rows;
   // #3.7. 좋아요 구하기
   const qAllLikes = await QTS.getAllLikes.fQuery({ postId });
   if (qAllLikes.type === 'error')
     return qAllLikes.onError(res, '3.6.1', 'searching likes');
-  console.log('===============', 5);
+
+  EXEC_STEP = '3.29';
   const like = qAllLikes.message.rows;
 
   return RESPOND(res, {
