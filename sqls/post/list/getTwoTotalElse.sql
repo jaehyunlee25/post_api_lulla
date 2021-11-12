@@ -3,7 +3,7 @@ select
 from 
     post p
 where 
-    and p.post_type = 0 
+    p.post_type = 0 
     and (
             (
                 -- principle data  
