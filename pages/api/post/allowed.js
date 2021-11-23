@@ -4,7 +4,7 @@ import {
   getUserIdFromToken,
   POST,
 } from '../../../lib/apiCommon';
-import setBaseURL from '../../../lib/pgConn'; // include String.prototype.fQuery
+import '../../../lib/pgConn'; // include String.prototype.fQuery
 
 const QTS = {
   // Query TemplateS
@@ -12,7 +12,7 @@ const QTS = {
   getDefinedAllowed: 'getDefinedAllowed',
   getUndefinedAllowed: 'getUndefinedAllowed',
 };
-
+const baseUrl = 'sqls/post/member'; // 끝에 슬래시 붙이지 마시오.
 // req.body를 만들지 않도록 한다.
 // export const config = { api: { bodyParser: false } };
 
@@ -26,8 +26,6 @@ export default async function handler(req, res) {
   });
   // #2. preflight 처리
   // if (req.method === 'OPTIONS') return RESPOND(res, {});
-
-  setBaseURL('sqls/post/member'); // 끝에 슬래시 붙이지 마시오.
 
   // #3.1.
   try {
@@ -62,7 +60,7 @@ async function main(req, res) {
   const { schoolId /* , grade, classId, kidId */ } = qMember.message;
 
   // #3.3. 공지에 접근 허가된 멤버와 반의 개수 구하기
-  const qCount = await QTS.getCountAllowed.fQuery({ postId });
+  const qCount = await QTS.getCountAllowed.fQuery(baseUrl, { postId });
   if (qCount.type === 'error') qCount.onError(res, '3.3', 'getting counts');
   const { ac_count: cntAC } = qCount.message.rows[0].ac_count;
   const { ac_count: cntAM } = qCount.message.rows[0].am_count;
@@ -73,7 +71,7 @@ async function main(req, res) {
   else query = QTS.getDefinedAllowed;
 
   // #3.4. 결과 구하기
-  const qRes = await query.fQuery({ postId, schoolId });
+  const qRes = await query.fQuery(baseUrl, { postId, schoolId });
   if (qRes.type === 'error') qRes.onError(res, '3.4', 'getting members');
 
   const data = qRes.message.rows[0];

@@ -1,12 +1,12 @@
 import { RESPOND, ERROR, getUserIdFromToken } from '../../../lib/apiCommon';
-import setBaseURL from '../../../lib/pgConn'; // include String.prototype.fQuery
+import '../../../lib/pgConn'; // include String.prototype.fQuery
 
 const QTS = {
   // Query TemplateS
   getSurvey: 'getSurveyById',
   delSurvey: 'delSurvey',
 };
-
+const baseUrl = 'sqls/survey/delete'; // 끝에 슬래시 붙이지 마시오.
 // req.body를 만들지 않도록 한다.
 // export const config = { api: { bodyParser: false } };
 
@@ -20,8 +20,6 @@ export default async function handler(req, res) {
   });
   // #2. preflight 처리
   if (req.method === 'OPTIONS') return RESPOND(res, {});
-
-  setBaseURL('sqls/survey/delete'); // 끝에 슬래시 붙이지 마시오.
 
   // #3.1.
   try {
@@ -44,7 +42,7 @@ async function main(req, res) {
   const { id: surveyId } = req.body.survey;
 
   // #3.2 survey 검색
-  const qSurvey = await QTS.getSurvey.fQuery({ surveyId });
+  const qSurvey = await QTS.getSurvey.fQuery(baseUrl, { surveyId });
   if (qSurvey.type === 'error')
     return qSurvey.onError(res, '3.2', 'searching survey');
 
@@ -56,7 +54,7 @@ async function main(req, res) {
     });
 
   // #3.2 survey 삭제
-  const qDel = await QTS.delSurvey.fQuery({ surveyId });
+  const qDel = await QTS.delSurvey.fQuery(baseUrl, { surveyId });
   if (qDel.type === 'error')
     return qDel.onError(res, '3.2', 'searching survey');
 

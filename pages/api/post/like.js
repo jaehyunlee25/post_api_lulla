@@ -4,7 +4,7 @@ import {
   getUserIdFromToken,
   POST,
 } from '../../../lib/apiCommon';
-import setBaseURL from '../../../lib/pgConn'; // include String.prototype.fQuery
+import '../../../lib/pgConn'; // include String.prototype.fQuery
 
 const QTS = {
   // Query TemplateS
@@ -14,7 +14,7 @@ const QTS = {
   getLike: 'getLike',
   getAllLikes: 'getAllLikes',
 };
-
+const baseUrl = 'sqls/post/like'; // 끝에 슬래시 붙이지 마시오.
 // req.body를 만들지 않도록 한다.
 // export const config = { api: { bodyParser: false } };
 
@@ -28,8 +28,6 @@ export default async function handler(req, res) {
   });
   // #2. preflight 처리
   if (req.method === 'OPTIONS') return RESPOND(res, {});
-
-  setBaseURL('sqls/post/like'); // 끝에 슬래시 붙이지 마시오.
 
   // #3.1.
   try {
@@ -71,7 +69,7 @@ async function get(req, res) {
       message: '원에 가입 후 진행해주세요.',
     });
 
-  const qAll = await QTS.getAllLikes.fQuery({ memberId, postId });
+  const qAll = await QTS.getAllLikes.fQuery(baseUrl, { memberId, postId });
   if (qAll.type === 'error')
     return qAll.onError(res, '3.4.1', 'getting all likes');
   const like = qAll.message.rows;
@@ -110,7 +108,7 @@ async function post(req, res) {
     });
 
   // #3.3. post 검색
-  const qPost = await QTS.getPost.fQuery({ postId });
+  const qPost = await QTS.getPost.fQuery(baseUrl, { postId });
   if (qPost.type === 'error') return qPost.onError(res, '3.3', 'getting post');
   if (qPost.message.rows.length === 0)
     return ERROR(res, {
@@ -120,13 +118,13 @@ async function post(req, res) {
     });
 
   // #3.4. like 찾기
-  const qLike = await QTS.getLike.fQuery({ memberId, postId });
+  const qLike = await QTS.getLike.fQuery(baseUrl, { memberId, postId });
   if (qLike.type === 'error')
     return qLike.onError(res, '3.4.1', 'getting like');
 
   // #3.5. new like 생성
   if (qLike.message.rows.length === 0) {
-    const qNewLike = await QTS.newLike.fQuery({ memberId, postId });
+    const qNewLike = await QTS.newLike.fQuery(baseUrl, { memberId, postId });
     if (qNewLike.type === 'error')
       return qNewLike.onError(res, '3.5.1', 'insert like');
     return RESPOND(res, {
@@ -136,7 +134,7 @@ async function post(req, res) {
   }
 
   // #3.6. like 삭제
-  const qDelLike = await QTS.delLike.fQuery({ memberId, postId });
+  const qDelLike = await QTS.delLike.fQuery(baseUrl, { memberId, postId });
   if (qDelLike.type === 'error')
     return qDelLike.onError(res, '3.6.1', 'delete like');
   return RESPOND(res, {

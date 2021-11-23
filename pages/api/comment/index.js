@@ -4,7 +4,7 @@ import {
   getUserIdFromToken,
   POST,
 } from '../../../lib/apiCommon';
-import setBaseURL from '../../../lib/pgConn'; // include String.prototype.fQuery
+import '../../../lib/pgConn'; // include String.prototype.fQuery
 
 const QTS = {
   // Query TemplateS
@@ -12,7 +12,7 @@ const QTS = {
   newComment: 'newComment',
   newToComment: 'newToComment',
 };
-
+const baseUrl = 'sqls/comment/comment'; // 끝에 슬래시 붙이지 마시오.
 // req.body를 만들지 않도록 한다.
 // export const config = { api: { bodyParser: false } };
 
@@ -26,8 +26,6 @@ export default async function handler(req, res) {
   });
   // #2. preflight 처리
   if (req.method === 'OPTIONS') return RESPOND(res, {});
-
-  setBaseURL('sqls/comment/comment'); // 끝에 슬래시 붙이지 마시오.
 
   // #3.1.
   try {
@@ -97,7 +95,7 @@ async function post(req, res) {
   // const { schoolId /* , grade, classId, kidId */ } = qMember.message;
 
   // #3.3. comment 검색
-  const qComment = await QTS.getComment.fQuery({ commentId });
+  const qComment = await QTS.getComment.fQuery(baseUrl, { commentId });
   if (qComment.type === 'error')
     return qComment.onError(res, '3.3', 'fatal error while searching member');
   if (qComment.message.rows.length === 0)
@@ -107,7 +105,7 @@ async function post(req, res) {
     });
 
   // #3.4. 대댓글 생성
-  const qNew = await QTS.newComment.fQuery({
+  const qNew = await QTS.newComment.fQuery(baseUrl, {
     content,
     memberId,
     targetMemberId,
@@ -117,7 +115,7 @@ async function post(req, res) {
   const toCommentId = qNew.message.rows[0].id;
 
   // #3.5. 대댓글 연결
-  const qTo = await QTS.newToComment.fQuery({
+  const qTo = await QTS.newToComment.fQuery(baseUrl, {
     commentId,
     toCommentId,
   });
@@ -125,7 +123,9 @@ async function post(req, res) {
     return qTo.onError(res, '3.5', 'creating tocomment');
 
   // #3.6. 대댓글 소환
-  const qToCom = await QTS.getComment.fQuery({ commentId: toCommentId });
+  const qToCom = await QTS.getComment.fQuery(baseUrl, {
+    commentId: toCommentId,
+  });
   if (qToCom.type === 'error')
     return qToCom.onError(res, '3.6', 'searching tocomment');
   const userComment = qToCom.message.rows[0];

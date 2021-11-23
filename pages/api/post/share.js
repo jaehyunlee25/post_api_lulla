@@ -5,7 +5,7 @@ import {
   getUserIdFromToken,
   POST,
 } from '../../../lib/apiCommon';
-import setBaseURL from '../../../lib/pgConn'; // include String.prototype.fQuery
+import '../../../lib/pgConn'; // include String.prototype.fQuery
 
 const QTS = {
   // Query TemplateS
@@ -16,7 +16,7 @@ const QTS = {
   getACMs: 'getAllClassMembers',
   getMIMs: 'getMembersInMemberList',
 };
-
+const baseUrl = 'sqls/post/share'; // 끝에 슬래시 붙이지 마시오.
 // req.body를 만들지 않도록 한다.
 // export const config = { api: { bodyParser: false } };
 
@@ -30,8 +30,6 @@ export default async function handler(req, res) {
   });
   // #2. preflight 처리
   if (req.method === 'OPTIONS') return RESPOND(res, {});
-
-  setBaseURL('sqls/post/share'); // 끝에 슬래시 붙이지 마시오.
 
   // #3.1.
   try {
@@ -75,10 +73,10 @@ async function main(req, res) {
   let qMems;
   if (isAll) {
     // #3.3. 개수 구하기
-    const qAM = await QTS.getAM.fQuery({ postId });
+    const qAM = await QTS.getAM.fQuery(baseUrl, { postId });
     if (qAM.type === 'error')
       return qAM.onError(res, '3.3.1', 'getting allowed members');
-    const qAC = await QTS.getAC.fQuery({ postId });
+    const qAC = await QTS.getAC.fQuery(baseUrl, { postId });
     if (qAC.type === 'error')
       return qAC.onError(res, '3.3.2', 'getting allowed class');
 
@@ -87,24 +85,24 @@ async function main(req, res) {
 
     // #3.4.
     if (cntAM === 0 && cntAC === 0) {
-      qMems = await QTS.getAllMembers.fQuery({ schoolId });
+      qMems = await QTS.getAllMembers.fQuery(baseUrl, { schoolId });
       if (qMems.type === 'error')
         return qMems.onError(res, '3.4.1', 'getting all members');
     } else {
-      qMems = await QTS.getAMs.fQuery({ postId });
+      qMems = await QTS.getAMs.fQuery(baseUrl, { postId });
       if (qMems.type === 'error')
         return qMems.onError(res, '3.4.1', 'getting allowed members');
     }
   } else if (classList) {
     // #3.5.
     const classIds = classList.map((id) => ["'", id, "'"].join('')).join(',');
-    qMems = await QTS.getACMs.fQuery({ classIds });
+    qMems = await QTS.getACMs.fQuery(baseUrl, { classIds });
     if (qMems.type === 'error')
       return qMems.onError(res, '3.5.1', 'getting class members');
   } else if (memberList) {
     // #3.6.
     const memberIds = memberList.map((id) => ["'", id, "'"].join('')).join(',');
-    qMems = await QTS.getMIMs.fQuery({ memberIds });
+    qMems = await QTS.getMIMs.fQuery(baseUrl, { memberIds });
     if (qMems.type === 'error')
       return qMems.onError(res, '3.6.1', 'getting members in list');
   }

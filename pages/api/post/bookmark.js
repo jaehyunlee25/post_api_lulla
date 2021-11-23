@@ -4,7 +4,7 @@ import {
   getUserIdFromToken,
   POST,
 } from '../../../lib/apiCommon';
-import setBaseURL from '../../../lib/pgConn'; // include String.prototype.fQuery
+import '../../../lib/pgConn'; // include String.prototype.fQuery
 
 const QTS = {
   // Query TemplateS
@@ -13,7 +13,7 @@ const QTS = {
   newBM: 'newBookmark',
   delBM: 'delBookmark',
 };
-
+const baseUrl = 'sqls/post/bookmark'; // 끝에 슬래시 붙이지 마시오.
 // req.body를 만들지 않도록 한다.
 // export const config = { api: { bodyParser: false } };
 
@@ -27,8 +27,6 @@ export default async function handler(req, res) {
   });
   // #2. preflight 처리
   if (req.method === 'OPTIONS') return RESPOND(res, {});
-
-  setBaseURL('sqls/post/bookmark'); // 끝에 슬래시 붙이지 마시오.
 
   // #3.1.
   try {
@@ -73,7 +71,7 @@ async function main(req, res) {
     });
 
   // #3.4. post 검색
-  const qPost = await QTS.getPost.fQuery({ postId });
+  const qPost = await QTS.getPost.fQuery(baseUrl, { postId });
   if (qPost.type === 'error')
     return qPost.onError(res, '3.4', 'searching post');
 
@@ -86,13 +84,13 @@ async function main(req, res) {
     });
 
   // #3.6. bookmark 검색
-  const qBM = await QTS.getBM.fQuery({ memberId, postId });
+  const qBM = await QTS.getBM.fQuery(baseUrl, { memberId, postId });
   if (qBM.type === 'error')
     return qBM.onError(res, '3.4', 'searching bookmark');
 
   if (qBM.message.rows.length === 0) {
     // #3.7. bookmark 생성
-    const qNew = await QTS.newBM.fQuery({ memberId, postId });
+    const qNew = await QTS.newBM.fQuery(baseUrl, { memberId, postId });
     if (qNew.type === 'error')
       return qNew.onError(res, '3.4', 'creating bookmark');
 
@@ -104,7 +102,7 @@ async function main(req, res) {
 
   // #3.8. bookmark 삭제
   const bookmarkId = qBM.message.rows[0].id;
-  const qDel = await QTS.delBM.fQuery({ bookmarkId });
+  const qDel = await QTS.delBM.fQuery(baseUrl, { bookmarkId });
   if (qDel.type === 'error')
     return qDel.onError(res, '3.8', 'removing bookmark');
 

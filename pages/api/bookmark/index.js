@@ -4,14 +4,14 @@ import {
   getUserIdFromToken,
   POST,
 } from '../../../lib/apiCommon';
-import setBaseURL from '../../../lib/pgConn'; // include String.prototype.fQuery
+import '../../../lib/pgConn'; // include String.prototype.fQuery
 
 const QTS = {
   // Query TemplateS
   getAllBM: 'getAllBookmarks',
   getBMtype: 'getBookmarksByType',
 };
-
+const baseUrl = 'sqls/bookmark/bookmark'; // 끝에 슬래시 붙이지 마시오.
 // req.body를 만들지 않도록 한다.
 // export const config = { api: { bodyParser: false } };
 
@@ -25,8 +25,6 @@ export default async function handler(req, res) {
   });
   // #2. preflight 처리
   if (req.method === 'OPTIONS') return RESPOND(res, {});
-
-  setBaseURL('sqls/bookmark/bookmark'); // 끝에 슬래시 붙이지 마시오.
 
   // #3.1.
   try {
@@ -63,7 +61,7 @@ async function main(req, res) {
   // #3.3. bookmark 검색
   // eslint-disable-next-line eqeqeq
   const query = type == 0 ? QTS.getAllBM : QTS.getBMtype;
-  const qBM = await query.fQuery({ memberId, type });
+  const qBM = await query.fQuery(baseUrl, { memberId, type });
   if (qBM.type === 'error')
     return qBM.onError(res, '3.3', 'searching bookmarks');
 

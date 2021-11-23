@@ -4,7 +4,7 @@ import {
   getUserIdFromToken,
   POST,
 } from '../../../lib/apiCommon';
-import setBaseURL from '../../../lib/pgConn'; // include String.prototype.fQuery
+import '../../../lib/pgConn'; // include String.prototype.fQuery
 
 const QTS = {
   // Query TemplateS
@@ -13,7 +13,7 @@ const QTS = {
   getPost: 'getPostById',
   getAC: 'getAllComments',
 };
-
+const baseUrl = 'sqls/post/comment'; // 끝에 슬래시 붙이지 마시오.
 // req.body를 만들지 않도록 한다.
 // export const config = { api: { bodyParser: false } };
 
@@ -27,8 +27,6 @@ export default async function handler(req, res) {
   });
   // #2. preflight 처리
   if (req.method === 'OPTIONS') return RESPOND(res, {});
-
-  setBaseURL('sqls/post/comment'); // 끝에 슬래시 붙이지 마시오.
 
   // #3.1.
   try {
@@ -70,7 +68,7 @@ async function get(req, res) {
       message: '원에 가입 후 진행해주세요.',
     });
 
-  const qAll = await QTS.getAC.fQuery({ postId });
+  const qAll = await QTS.getAC.fQuery(baseUrl, { postId });
   if (qAll.type === 'error')
     return qAll.onError(res, '3.4.1', 'getting all comments');
   const comment = qAll.message.rows;
@@ -109,7 +107,7 @@ async function post(req, res) {
     });
 
   // #3.3. post 검색
-  const qPost = await QTS.getPost.fQuery({ postId });
+  const qPost = await QTS.getPost.fQuery(baseUrl, { postId });
   if (qPost.type === 'error') return qPost.onError(res, '3.3', 'getting post');
   if (qPost.message.rows.length === 0)
     return ERROR(res, {
@@ -119,13 +117,17 @@ async function post(req, res) {
     });
 
   // #3.4. 댓글 생성
-  const qComment = await QTS.newComment.fQuery({ memberId, postId, content });
+  const qComment = await QTS.newComment.fQuery(baseUrl, {
+    memberId,
+    postId,
+    content,
+  });
   if (qComment.type === 'error')
     return qComment.onError(res, '3.4.1', 'creating comment');
   const commentId = qComment.message.rows[0].id;
 
   // #3.5. 댓글 추출
-  const qNew = await QTS.getComment.fQuery({ commentId });
+  const qNew = await QTS.getComment.fQuery(baseUrl, { commentId });
   if (qNew.type === 'error')
     return qNew.onError(res, '3.4.1', 'creating comment');
 

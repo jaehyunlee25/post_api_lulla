@@ -242,7 +242,8 @@ select
                             m.class_id = ac.class_id 
                             and m.kid_id is not null 
                             and ac.post_id = '${postId}')
-        )AS INTEGER
+            )
+        ) AS INTEGER
     ) survey_target_member,
     -- submit_member
     CAST(

@@ -4,7 +4,7 @@ import {
   getUserIdFromToken,
   POST,
 } from '../../../lib/apiCommon';
-import setBaseURL from '../../../lib/pgConn'; // include String.prototype.fQuery
+import '../../../lib/pgConn'; // include String.prototype.fQuery
 
 const QTS = {
   // Query TemplateS
@@ -13,7 +13,7 @@ const QTS = {
   delPosts: 'delPostsByIds',
   getFiles: 'getFilesByPostIds',
 };
-
+const baseUrl = 'sqls/post/delete'; // 끝에 슬래시 붙이지 마시오.
 // req.body를 만들지 않도록 한다.
 // export const config = { api: { bodyParser: false } };
 
@@ -27,8 +27,6 @@ export default async function handler(req, res) {
   });
   // #2. preflight 처리
   if (req.method === 'OPTIONS') return RESPOND(res, {});
-
-  setBaseURL('sqls/post/delete'); // 끝에 슬래시 붙이지 마시오.
 
   // #3.1.
   try {
@@ -64,7 +62,7 @@ async function main(req, res) {
   const { schoolId /* , grade, classId  , kidId */ } = qMember.message;
 
   // #3.3. 권한 검색
-  const qGrade = await QTS.getDG.fQuery({ memberId });
+  const qGrade = await QTS.getDG.fQuery(baseUrl, { memberId });
   if (qGrade.type === 'error')
     return qGrade.onError(res, '3.3.1', 'getting grade');
   if (qGrade.message.rows.length === 0)
@@ -83,7 +81,7 @@ async function main(req, res) {
     .join(',');
 
   // #3.5. 포스트 추출
-  const qPosts = await QTS.getPosts.fQuery({ postIds, schoolId });
+  const qPosts = await QTS.getPosts.fQuery(baseUrl, { postIds, schoolId });
   if (qPosts.type === 'error')
     return qPosts.onError(res, '3.5.1', 'getting posts');
   if (qPosts.message.rows.length === 0)
@@ -108,7 +106,7 @@ async function main(req, res) {
       return ["'", postId, "'"].join('');
     })
     .join(',');
-  const qFiles = await QTS.getFiles.fQuery({ delPostIds });
+  const qFiles = await QTS.getFiles.fQuery(baseUrl, { delPostIds });
   if (qFiles.type === 'error')
     return qFiles.onError(res, '3.7.1', 'getting posts');
   const fileIds = qFiles.message.rows.map((file) => {
@@ -131,7 +129,7 @@ async function main(req, res) {
   }
 
   // #3.9. 공지를 삭제한다.
-  const qDels = await QTS.delPosts.fQuery({ delPostIds });
+  const qDels = await QTS.delPosts.fQuery(baseUrl, { delPostIds });
   if (qDels.type === 'error')
     return qDels.onError(res, '3.9.1', 'getting posts');
 

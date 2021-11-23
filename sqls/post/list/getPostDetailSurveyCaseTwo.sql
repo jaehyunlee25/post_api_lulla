@@ -238,7 +238,7 @@ select
                         where 
                             m.school_id = '${schoolId}'
                             and sr.grade > 4)
-        )AS INTEGER
+        ) AS INTEGER
     ) survey_target_member,
     -- submit_member
     CAST(

@@ -4,13 +4,13 @@ import {
   getUserIdFromToken,
   POST,
 } from '../../../lib/apiCommon';
-import setBaseURL from '../../../lib/pgConn'; // include String.prototype.fQuery
+import '../../../lib/pgConn'; // include String.prototype.fQuery
 
 const QTS = {
   // Query TemplateS
   getList: 'getShareList',
 };
-
+const baseUrl = 'sqls/post/share-list'; // 끝에 슬래시 붙이지 마시오.
 // req.body를 만들지 않도록 한다.
 // export const config = { api: { bodyParser: false } };
 
@@ -24,8 +24,6 @@ export default async function handler(req, res) {
   });
   // #2. preflight 처리
   // if (req.method === 'OPTIONS') return RESPOND(res, {});
-
-  setBaseURL('sqls/post/share-list'); // 끝에 슬래시 붙이지 마시오.
 
   // #3.1.
   try {
@@ -80,7 +78,11 @@ async function main(req, res) {
     });
 
   // #3.2. list 검색
-  const qAll = await QTS.getList.fQuery({ memberId, postId, schoolId });
+  const qAll = await QTS.getList.fQuery(baseUrl, {
+    memberId,
+    postId,
+    schoolId,
+  });
   if (qAll.type === 'error') return qAll.onError(res, '3.2.1', 'getting list');
   const data = qAll.message.rows;
 

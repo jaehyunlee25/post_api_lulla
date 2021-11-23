@@ -5,7 +5,7 @@ import {
   getUserIdFromToken,
   POST,
 } from '../../../lib/apiCommon';
-import setBaseURL from '../../../lib/pgConn'; // include String.prototype.fQuery
+import '../../../lib/pgConn'; // include String.prototype.fQuery
 
 const QTS = {
   // Query TemplateS
@@ -79,6 +79,7 @@ const QTS = {
   getCountClass: 'getCountClass',
 };
 let EXEC_STEP = 0;
+const baseUrl = 'sqls/post/list'; // 끝에 슬래시 붙이지 마시오.
 
 // req.body를 만들지 않도록 한다.
 // export const config = { api: { bodyParser: false } };
@@ -93,8 +94,6 @@ export default async function handler(req, res) {
   });
   // #2. preflight 처리
   if (req.method === 'OPTIONS') return RESPOND(res, {});
-
-  setBaseURL('sqls/post/list'); // 끝에 슬래시 붙이지 마시오.
 
   // #3.1.
   try {
@@ -152,7 +151,7 @@ async function main(req, res) {
 
   EXEC_STEP = '3.3'; // #3.3. 프로필이 없는 경우 축하메시지
   if (!schoolId) {
-    const qCon = await QTS.getPostCongrat.fQuery({ postId });
+    const qCon = await QTS.getPostCongrat.fQuery(baseUrl, { postId });
     if (qCon.type === 'error')
       return qCon.onError(res, '3.3', 'searching congrat post');
 
@@ -193,7 +192,7 @@ async function main(req, res) {
 
   EXEC_STEP = '3.8'; // #3.8. memberId를 통해 포스트에 읽기 권한이 있는지 살펴본다.
   const action = 2;
-  const qPG = await QTS.getPostGrade.fQuery({ memberId, action });
+  const qPG = await QTS.getPostGrade.fQuery(baseUrl, { memberId, action });
   if (qPG.type === 'error') return qPG.onError(res, '3.8.1', 'searching likes');
 
   EXEC_STEP = '3.9';
@@ -208,7 +207,7 @@ async function main(req, res) {
   EXEC_STEP = '3.10';
   const { grade } = qPG.message.rows[0];
 
-  const qCountClass = await QTS.getCountClass.fQuery({ schoolId });
+  const qCountClass = await QTS.getCountClass.fQuery(baseUrl, { schoolId });
   if (qCountClass.type === 'error')
     return qCountClass.onError(res, '3.8.1', 'searching likes');
 
@@ -220,7 +219,7 @@ async function main(req, res) {
   if (grade === 1) {
     if (classes.length > 0 && cntClass !== classes.length) {
       EXEC_STEP = '3.12';
-      qPost = await QTS.getOne.fQuery({
+      qPost = await QTS.getOne.fQuery(baseUrl, {
         memberId,
         endDate,
         schoolId,
@@ -229,7 +228,7 @@ async function main(req, res) {
         page,
         pageSize,
       });
-      qTotal = await QTS.getOneTotal.fQuery({
+      qTotal = await QTS.getOneTotal.fQuery(baseUrl, {
         schoolId,
         classes: strClasses,
         memberId,
@@ -256,7 +255,7 @@ async function main(req, res) {
         qtsCnt = QTS.getOneTotalSearchBoth;
       }
 
-      qPost = await qts.fQuery({
+      qPost = await qts.fQuery(baseUrl, {
         search,
         memberId,
         endDate,
@@ -265,25 +264,25 @@ async function main(req, res) {
         page,
         pageSize,
       });
-      qTotal = await qtsCnt.fQuery({
+      qTotal = await qtsCnt.fQuery(baseUrl, {
         search,
         schoolId,
         isPublished,
       });
     } else if (temp) {
       EXEC_STEP = '3.14';
-      qPost = await QTS.getOneTemp.fQuery({
+      qPost = await QTS.getOneTemp.fQuery(baseUrl, {
         memberId,
         endDate,
         isPublished,
       });
-      qTotal = await QTS.getOneTotalTemp.fQuery({
+      qTotal = await QTS.getOneTotalTemp.fQuery(baseUrl, {
         memberId,
         isPublished,
       });
     } else {
       EXEC_STEP = '3.15';
-      qPost = await QTS.getOneElse.fQuery({
+      qPost = await QTS.getOneElse.fQuery(baseUrl, {
         memberId,
         schoolId,
         endDate,
@@ -291,7 +290,7 @@ async function main(req, res) {
         page,
         pageSize,
       });
-      qTotal = await QTS.getOneTotalElse.fQuery({
+      qTotal = await QTS.getOneTotalElse.fQuery(baseUrl, {
         schoolId,
         isPublished,
       });
@@ -318,7 +317,7 @@ async function main(req, res) {
         qtsCnt = QTS.getTwoTotalSearchBoth;
       }
 
-      qPost = await qts.fQuery({
+      qPost = await qts.fQuery(baseUrl, {
         search,
         memberId,
         endDate,
@@ -327,23 +326,23 @@ async function main(req, res) {
         page,
         pageSize,
       });
-      qTotal = await qtsCnt.fQuery({
+      qTotal = await qtsCnt.fQuery(baseUrl, {
         search,
         schoolId,
         isPublished,
       });
     } else if (temp) {
-      qPost = await QTS.getTwoTemp.fQuery({
+      qPost = await QTS.getTwoTemp.fQuery(baseUrl, {
         memberId,
         endDate,
         isPublished,
       });
-      qTotal = await QTS.getTwoTotalTemp.fQuery({
+      qTotal = await QTS.getTwoTotalTemp.fQuery(baseUrl, {
         memberId,
         isPublished,
       });
     } else {
-      qPost = await QTS.getTwoElse.fQuery({
+      qPost = await QTS.getTwoElse.fQuery(baseUrl, {
         memberId,
         schoolId,
         endDate,
@@ -352,7 +351,7 @@ async function main(req, res) {
         page,
         pageSize,
       });
-      qTotal = await QTS.getTwoTotalElse.fQuery({
+      qTotal = await QTS.getTwoTotalElse.fQuery(baseUrl, {
         schoolId,
         memberId,
         classId,
@@ -381,7 +380,7 @@ async function main(req, res) {
         qtsCnt = QTS.getElseTotalSearchBoth;
       }
 
-      qPost = await qts.fQuery({
+      qPost = await qts.fQuery(baseUrl, {
         search,
         memberId,
         endDate,
@@ -390,14 +389,14 @@ async function main(req, res) {
         page,
         pageSize,
       });
-      qTotal = await qtsCnt.fQuery({
+      qTotal = await qtsCnt.fQuery(baseUrl, {
         search,
         schoolId,
         isPublished,
       });
     } else {
       console.log('===============', 8.7);
-      qPost = await QTS.getElseElse.fQuery({
+      qPost = await QTS.getElseElse.fQuery(baseUrl, {
         memberId,
         schoolId,
         endDate,
@@ -406,7 +405,7 @@ async function main(req, res) {
         page,
         pageSize,
       });
-      qTotal = await QTS.getElseTotalElse.fQuery({
+      qTotal = await QTS.getElseTotalElse.fQuery(baseUrl, {
         schoolId,
         memberId,
         classId,
@@ -466,17 +465,17 @@ async function detail(req, res) {
   const endDate = await getFormatDate(new Date());
 
   // #3.4. 변수 확보
-  const qAM = await QTS.getAMcount.fQuery({ postId });
+  const qAM = await QTS.getAMcount.fQuery(baseUrl, { postId });
   if (qAM.type === 'error')
     return qAM.onError(res, '3.4.1', 'counting allowed member');
 
   EXEC_STEP = '3.23';
-  const qAC = await QTS.getACcount.fQuery({ postId });
+  const qAC = await QTS.getACcount.fQuery(baseUrl, { postId });
   if (qAC.type === 'error')
     return qAC.onError(res, '3.4.2', 'counting allowed class');
 
   EXEC_STEP = '3.24';
-  const qSVC = await QTS.getSVcount.fQuery({ postId });
+  const qSVC = await QTS.getSVcount.fQuery(baseUrl, { postId });
   if (qSVC.type === 'error')
     return qSVC.onError(res, '3.4.3', 'counting survey');
 
@@ -494,7 +493,7 @@ async function detail(req, res) {
   } else {
     qts = QTS.getPDSCOne;
   }
-  const qPostDetail = await qts.fQuery({
+  const qPostDetail = await qts.fQuery(baseUrl, {
     postId,
     schoolId,
     memberId,
@@ -503,19 +502,19 @@ async function detail(req, res) {
 
   EXEC_STEP = '3.27';
   if (qPostDetail.type === 'error')
-    return qPostDetail.onError(res, '3.5.1', 'searching post detail');
+    return qPostDetail.onError(res, '3.27.1', 'searching post detail');
   const postDetail = qPostDetail.message.rows[0];
   // #3.6. 댓글 구하기
-  const qAllComment = await QTS.getAllComments.fQuery({ postId });
+  const qAllComment = await QTS.getAllComments.fQuery(baseUrl, { postId });
   if (qAllComment.type === 'error')
-    return qAllComment.onError(res, '3.6.1', 'searching comments');
+    return qAllComment.onError(res, '3.27.2', 'searching comments');
 
   EXEC_STEP = '3.28';
   const comment = qAllComment.message.rows;
   // #3.7. 좋아요 구하기
-  const qAllLikes = await QTS.getAllLikes.fQuery({ postId });
+  const qAllLikes = await QTS.getAllLikes.fQuery(baseUrl, { postId });
   if (qAllLikes.type === 'error')
-    return qAllLikes.onError(res, '3.6.1', 'searching likes');
+    return qAllLikes.onError(res, '3.28.1', 'searching likes');
 
   EXEC_STEP = '3.29';
   const like = qAllLikes.message.rows;
