@@ -4,7 +4,9 @@ select
     p.contents contents, 
     p.is_modified is_modified,
     to_char(p.published_time, 'YYYY-MM-DD"T"HH24:MI:ss.MS"Z"') published_time, 
-    p.important, p.author_id,
+    p.important, 
+    p.author_id,
+    m.image_id author_image_id,
     to_char(p.created_at, 'YYYY-MM-DD"T"HH24:MI:ss.MS"Z"') created_at, 
     s.id survey_id, 
     to_char(s.end_date, 'YYYY-MM-DD"T24:00:00.000Z"') survey_end_date,
@@ -251,5 +253,6 @@ select
 from
     post p
     left join survey s on s.post_id = p.id
+    left join members m on m.id = p.author_id
 where
     p.id = '${postId}';
