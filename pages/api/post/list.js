@@ -147,7 +147,7 @@ async function main(req, res) {
       EXEC_STEP,
       'fatal error while searching member',
     );
-  const { schoolId, classId, grade: userGrade, /* kidId */ } = qMember.message;
+  const { schoolId, classId, grade: userGrade /* kidId */ } = qMember.message;
 
   EXEC_STEP = '3.3'; // #3.3. 프로필이 없는 경우 축하메시지
   if (!schoolId) {
