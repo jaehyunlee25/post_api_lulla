@@ -147,7 +147,7 @@ async function main(req, res) {
       EXEC_STEP,
       'fatal error while searching member',
     );
-  const { schoolId, classId /* , grade, kidId */ } = qMember.message;
+  const { schoolId, classId, grade: userGrade, /* kidId */ } = qMember.message;
 
   EXEC_STEP = '3.3'; // #3.3. 프로필이 없는 경우 축하메시지
   if (!schoolId) {
@@ -195,23 +195,22 @@ async function main(req, res) {
   const qPG = await QTS.getPostGrade.fQuery(baseUrl, { memberId, action });
   if (qPG.type === 'error') return qPG.onError(res, '3.8.1', 'searching likes');
 
-  /* EXEC_STEP = '3.9';
-  if (qPG.message.rows.length === 0)
-    return ERROR(res, {
-      resultCode: 401,
-      message: '공지에 대한 접근 권한이 없습니다.',
-      id: 'ERR.post.index.3.8.2',
-      data: { post: [], total_count: 0, total_page: 0 },
-    }); */
+  EXEC_STEP = '3.9';
+  let grade;
+  if (userGrade > 4) {
+    grade = userGrade;
+  } else {
+    if (qPG.message.rows.length === 0)
+      return ERROR(res, {
+        resultCode: 401,
+        message: '공지에 대한 접근 권한이 없습니다.',
+        id: 'ERR.post.index.3.8.2',
+        data: { post: [], total_count: 0, total_page: 0 },
+      });
+    grade = qPG.message.rows[0].grade;
+  }
 
   EXEC_STEP = '3.10';
-  let grade;
-  if (qPG.message.rows.length === 0) grade = 5;
-  else grade = qPG.message.rows[0].grade;
-  console.log('==========', grade, '============');
-
-  if (!grade) grade = 5;
-
   const qCountClass = await QTS.getCountClass.fQuery(baseUrl, { schoolId });
   if (qCountClass.type === 'error')
     return qCountClass.onError(res, '3.8.1', 'searching likes');
