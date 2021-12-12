@@ -190,6 +190,7 @@ async function main(req, res) {
     });
   }
 
+  /*
   EXEC_STEP = '3.8'; // #3.8. memberId를 통해 포스트에 읽기 권한이 있는지 살펴본다.
   const action = 2;
   const qPG = await QTS.getPostGrade.fQuery(baseUrl, { memberId, action });
@@ -203,7 +204,8 @@ async function main(req, res) {
       id: 'ERR.post.index.3.8.2',
       data: { post: [], total_count: 0, total_page: 0 },
     });
-
+  */
+ 
   EXEC_STEP = '3.10';
   const { grade } = qPG.message.rows[0];
 
