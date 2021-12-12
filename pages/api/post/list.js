@@ -205,7 +205,9 @@ async function main(req, res) {
     }); */
 
   EXEC_STEP = '3.10';
-  let { grade } = qPG.message.rows[0];
+  let grade;
+  if (qPG.message.rows.length === 0) grade = 5;
+  else grade = qPG.message.rows[0].grade;
   console.log('==========', grade, '============');
 
   if (!grade) grade = 5;
