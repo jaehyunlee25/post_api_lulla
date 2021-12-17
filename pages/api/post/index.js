@@ -125,7 +125,7 @@ async function main(req, res) {
     postId = qPost.message.rows[0].id;
   }
 
-  // #3.2. post 검색
+  // #3.4.5 post 검색
   const qPost = await POST(
     'post',
     '/list',
@@ -136,7 +136,11 @@ async function main(req, res) {
     { member_id: memberId, id: postId },
   );
   if (qPost.type === 'error')
-    return qPost.onError(res, '3.2', 'fatal error while searching member');
+    return qPost.onError(
+      res,
+      '3.4.5.1',
+      'fatal error while searching post list',
+    );
 
   console.log(qPost);
 
