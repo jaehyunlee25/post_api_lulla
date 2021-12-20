@@ -9,7 +9,8 @@ select
         WHEN sr.grade < 5 THEN concat(c.name,' ',u.name,' ','선생님') 
         WHEN sr.grade = 5 THEN concat(c.name,' ',k.name,'(',m.nickname,')') 
     END author_nickname,
-    m.id author_id, 
+    m.id author_id,
+    m.image_id author_image_id,
     sr.grade author_grade,
     sr.name author_type, 
     s.name school_name, 

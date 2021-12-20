@@ -9,13 +9,15 @@ select
         WHEN sr.grade < 5 THEN concat(c.name,' ',u.name,' ','선생님') 
         WHEN sr.grade = 5 THEN concat(c.name,' ',k.name,'(',m.nickname,')') 
     END author_nickname,
-    m.id author_id, 
+    m.id author_id,
+    m.image_id author_image_id,
     sr.grade author_grade,
     sr.name author_type, 
     s.name school_name, 
     c.name class_name, 
     f.address author_images,
-    b.id, b.type, 
+    b.id, 
+    b.type, 
     CASE 
         WHEN b.post_id is not null and b.type = 1 THEN b.post_id 
         WHEN b.post_id is null or b.type = 2 THEN null 
