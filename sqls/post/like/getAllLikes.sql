@@ -15,7 +15,8 @@ select
         WHEN sr.grade < 3 THEN concat(u.name,' ',sr.name) 
         WHEN sr.grade < 5 THEN concat(c.name,' ',u.name,' ','선생님') 
         WHEN sr.grade = 5 THEN concat(c.name,' ',k.name,'(',m.nickname,')') 
-    END member_nickname
+    END member_nickname,
+    m.image_id member_image_id
 from likes l
     left join members m on l.member_id = m.id
     left join file f on f.id = m.image_id
