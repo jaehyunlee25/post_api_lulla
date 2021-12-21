@@ -50,6 +50,7 @@ select
                         WHEN fsr.grade < 5 THEN concat(fc.name,' ',fu.name,' ','선생님') 
                         WHEN fsr.grade = 5 THEN concat(fc.name,' ',fk.name,'(',fm.nickname,')') 
                     END member_nickname,
+                    fm.image_id member_image_id,
                     fmf.address member_image, 
                     fsr.grade member_grade,
                     fsr.name member_type, 
