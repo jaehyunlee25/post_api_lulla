@@ -1,6 +1,8 @@
 select
-    *
+    p.*,
+    m.image_id member_image_id 
 from
-    post
+    post p
+    left join member m on m.id = p.author_id
 where
-    id = '${postId}';
+    p.id = '${postId}';
