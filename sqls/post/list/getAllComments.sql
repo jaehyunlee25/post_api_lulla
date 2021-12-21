@@ -1,5 +1,6 @@
 select 
-    cm.id id,cm.content, 
+    cm.id id,
+    cm.content, 
     cm.is_modified is_modified,
     cm.is_deleted is_deleted,
     to_char(cm.created_at, 'YYYY-MM-DD"T"HH24:MI:ss.MS"Z"') created_at,
@@ -11,7 +12,7 @@ select
         WHEN sr.grade < 5 THEN concat(c.name,' ',u.name,' ','선생님') 
         WHEN sr.grade = 5 THEN concat(c.name,' ',k.name,'(',m.nickname,')') 
     END member_nickname,
-    fm.image_id member_image_id,
+    m.image_id member_image_id,
     f.address member_image,
     sr.grade member_grade,
     sr.name member_type, 

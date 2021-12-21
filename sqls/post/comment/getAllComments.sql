@@ -1,5 +1,6 @@
 select 
-    cm.id id,cm.content, 
+    cm.id id,
+    cm.content, 
     cm.is_modified is_modified,
     cm.is_deleted is_deleted,
     to_char(cm.created_at, 'YYYY-MM-DD"T"HH24:MI:ss.MS"Z"') created_at,
