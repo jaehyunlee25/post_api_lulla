@@ -31,6 +31,7 @@ select
         WHEN tsr.grade < 5 THEN concat(tc.name,' ',tu.name,' ','선생님') 
         WHEN tsr.grade = 5 THEN concat(tc.name,' ',tk.name,'(',tm.nickname,')') 
     END target_member_nickname,
+    m.image_id member_image_id,
     (select array_to_json(
         array(
             select row_to_json(tmp) 
